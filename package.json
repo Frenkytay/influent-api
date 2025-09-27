@@ -7,7 +7,7 @@
     "start": "node app.js"
   },
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
   "dependencies": {
     "@faker-js/faker": "^10.0.0",
