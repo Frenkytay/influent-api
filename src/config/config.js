@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-
+import mysql from "mysql2";
 let config = {};
 
 if (process.env.MYSQL_HOST) {
@@ -14,7 +14,8 @@ if (process.env.MYSQL_HOST) {
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      dialect: process.env.MYSQL_DIALECT || "mysql",
+      dialect: "mysql",
+      dialectModule: mysql,
     },
   };
 } else {

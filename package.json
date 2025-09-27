@@ -1,10 +1,19 @@
 {
+  "name": "express-vercel-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node app.js",
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "@faker-js/faker": "^10.0.0",
-    "dotenv": "^17.2.2",
-    "express": "^5.1.0",
-    "mysql2": "^3.14.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mysql2": "^3.15.1",
     "sequelize": "^6.37.7"
-  },
-  "type": "module"
+  }
 }
