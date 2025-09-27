@@ -20,6 +20,7 @@ const getAll = async (req, res) => {
       where,
       limit: parseInt(limit),
       offset: parseInt(offset),
+      // include: [{ model: User, as: "user" }],
     };
     if (sort) options.order = [[sort, order.toUpperCase()]];
 

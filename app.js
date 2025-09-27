@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "./src/models/index.js"; // Ensure models are loaded"
 import express from "express";
 import config from "./src/config/config.js";
 import routes from "./src/routes/index.js";

@@ -1,4 +1,10 @@
 import CampaignUsers from "../models/CampaignUsers.js";
+import User from "../models/User.js";
+import Campaign from "../models/Campaign.js";
+
+// Make sure associations are defined somewhere in your project:
+// CampaignUsers.belongsTo(User, { foreignKey: 'student_id', as: 'user' });
+// CampaignUsers.belongsTo(Campaign, { foreignKey: 'campaign_id', as: 'campaign' });
 
 const getAll = async (req, res) => {
   try {
@@ -20,6 +26,10 @@ const getAll = async (req, res) => {
       where,
       limit: parseInt(limit),
       offset: parseInt(offset),
+      include: [
+        { model: User, as: "user" },
+        { model: Campaign, as: "campaign" },
+      ],
     };
     if (sort) options.order = [[sort, order.toUpperCase()]];
 
@@ -32,7 +42,12 @@ const getAll = async (req, res) => {
 
 const getById = async (req, res) => {
   try {
-    const item = await CampaignUsers.findByPk(req.params.id);
+    const item = await CampaignUsers.findByPk(req.params.id, {
+      include: [
+        { model: User, as: "user" },
+        { model: Campaign, as: "campaign" },
+      ],
+    });
     if (!item) return res.status(404).json({ error: "Not found" });
     res.json(item);
   } catch (err) {
