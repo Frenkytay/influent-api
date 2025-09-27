@@ -33,7 +33,7 @@ const Review = sequelize.define(
     },
   },
   {
-    tableName: "Review",
+    tableName: "review",
     timestamps: false,
   }
 );

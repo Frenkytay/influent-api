@@ -46,7 +46,7 @@ const Campaign = sequelize.define(
     },
   },
   {
-    tableName: "Campaign",
+    tableName: "campaign",
     timestamps: false,
   }
 );

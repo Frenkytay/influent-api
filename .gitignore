@@ -105,7 +105,7 @@ typings/
 
 # dotenv environment variables file
 .env
-
+config.json
 
 ### SublimeText ###
 # cache files for sublime text

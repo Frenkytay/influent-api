@@ -36,7 +36,7 @@ const CampaignUsers = sequelize.define(
     },
   },
   {
-    tableName: "CampaignUsers",
+    tableName: "campaignUsers",
     timestamps: false,
     indexes: [
       {

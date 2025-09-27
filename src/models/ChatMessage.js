@@ -35,7 +35,7 @@ const ChatMessage = sequelize.define(
     },
   },
   {
-    tableName: "ChatMessage",
+    tableName: "chatMessage",
     timestamps: false,
   }
 );

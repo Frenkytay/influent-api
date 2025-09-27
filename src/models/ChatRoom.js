@@ -26,7 +26,7 @@ const ChatRoom = sequelize.define(
     },
   },
   {
-    tableName: "ChatRoom",
+    tableName: "chatRoom",
     timestamps: false,
   }
 );
