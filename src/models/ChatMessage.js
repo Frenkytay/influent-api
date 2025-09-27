@@ -1,5 +1,5 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db.js";
 
 const ChatMessage = sequelize.define(
   "ChatMessage",
@@ -40,4 +40,4 @@ const ChatMessage = sequelize.define(
   }
 );
 
-module.exports = ChatMessage;
+export default ChatMessage;

@@ -1,5 +1,5 @@
-const { Sequelize } = require("sequelize");
-const config = require("./config");
+import { Sequelize } from "sequelize";
+import config from "./config.js";
 
 const sequelize = new Sequelize(
   config.mysql.database,
@@ -13,4 +13,4 @@ const sequelize = new Sequelize(
   }
 );
 
-module.exports = sequelize;
+export default sequelize;

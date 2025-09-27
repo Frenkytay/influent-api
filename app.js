@@ -1,15 +1,12 @@
-require("dotenv").config();
-const express = require("express");
+import "dotenv/config";
+import express from "express";
+import config from "./src/config/config.js";
+import routes from "./src/routes/index.js";
+import errorHandler from "./src/middlewares/errorHandler.js";
+
 const app = express();
-const config = require("./src/config/config");
-
 app.use(express.json());
-
-// Register all model routes
-app.use("/api", require("./src/routes"));
-
-// Error handling middleware
-const errorHandler = require("./src/middlewares/errorHandler");
+app.use("/api", routes);
 app.use(errorHandler);
 
 const PORT = config.port || 3000;

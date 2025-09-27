@@ -1,13 +1,21 @@
-const express = require("express");
+import express from "express";
+import userRoutes from "./userRoutes.js";
+import studentRoutes from "./studentRoutes.js";
+import campaignRoutes from "./campaignRoutes.js";
+import campaignUsersRoutes from "./campaignUsersRoutes.js";
+import chatRoomRoutes from "./chatRoomRoutes.js";
+import chatMessageRoutes from "./chatMessageRoutes.js";
+import reviewRoutes from "./reviewRoutes.js";
+import notificationRoutes from "./notificationRoutes.js";
+
 const router = express.Router();
+router.use("/v1/users", userRoutes);
+router.use("/v1/students", studentRoutes);
+router.use("/v1/campaigns", campaignRoutes);
+router.use("/v1/campaign-users", campaignUsersRoutes);
+router.use("/v1/chat-rooms", chatRoomRoutes);
+router.use("/v1/chat-messages", chatMessageRoutes);
+router.use("/v1/reviews", reviewRoutes);
+router.use("/v1/notifications", notificationRoutes);
 
-router.use("/v1/users", require("./userRoutes"));
-router.use("/v1/students", require("./studentRoutes"));
-router.use("/v1/campaigns", require("./campaignRoutes"));
-router.use("/v1/campaign-users", require("./campaignUsersRoutes"));
-router.use("/v1/chat-rooms", require("./chatRoomRoutes"));
-router.use("/v1/chat-messages", require("./chatMessageRoutes"));
-router.use("/v1/reviews", require("./reviewRoutes"));
-router.use("/v1/notifications", require("./notificationRoutes"));
-
-module.exports = router;
+export default router;

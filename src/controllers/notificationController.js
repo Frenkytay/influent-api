@@ -1,6 +1,6 @@
-const Notification = require("../models/Notification");
+import Notification from "../models/Notification.js";
 
-exports.getAll = async (req, res) => {
+const getAll = async (req, res) => {
   try {
     const {
       user_id,
@@ -30,7 +30,7 @@ exports.getAll = async (req, res) => {
   }
 };
 
-exports.getById = async (req, res) => {
+const getById = async (req, res) => {
   try {
     const notification = await Notification.findByPk(req.params.id);
     if (!notification) return res.status(404).json({ error: "Not found" });
@@ -40,7 +40,7 @@ exports.getById = async (req, res) => {
   }
 };
 
-exports.create = async (req, res) => {
+const create = async (req, res) => {
   try {
     const notification = await Notification.create(req.body);
     res.status(201).json(notification);
@@ -49,7 +49,7 @@ exports.create = async (req, res) => {
   }
 };
 
-exports.update = async (req, res) => {
+const update = async (req, res) => {
   try {
     const notification = await Notification.findByPk(req.params.id);
     if (!notification) return res.status(404).json({ error: "Not found" });
@@ -60,7 +60,7 @@ exports.update = async (req, res) => {
   }
 };
 
-exports.delete = async (req, res) => {
+const deleteNotification = async (req, res) => {
   try {
     const notification = await Notification.findByPk(req.params.id);
     if (!notification) return res.status(404).json({ error: "Not found" });
@@ -69,4 +69,12 @@ exports.delete = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: "Failed to delete notification" });
   }
+};
+
+export default {
+  getAll,
+  getById,
+  create,
+  update,
+  delete: deleteNotification,
 };

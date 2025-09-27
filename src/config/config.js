@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 let config = {};
 
@@ -23,4 +23,4 @@ if (process.env.MYSQL_HOST) {
   // config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
 }
 
-module.exports = config;
+export default config;

@@ -1,6 +1,7 @@
-const Campaign = require("../models/Campaign");
+import Campaign from "../models/Campaign.js";
+import { Op } from "sequelize";
 
-exports.getAll = async (req, res) => {
+const getAll = async (req, res) => {
   try {
     const {
       status,
@@ -14,7 +15,7 @@ exports.getAll = async (req, res) => {
     const where = {};
     if (status) where.status = status;
     if (student_id) where.student_id = student_id;
-    if (title) where.title = { [require("sequelize").Op.like]: `%${title}%` };
+    if (title) where.title = { [Op.like]: `%${title}%` };
 
     const options = {
       where,
@@ -30,7 +31,7 @@ exports.getAll = async (req, res) => {
   }
 };
 
-exports.getById = async (req, res) => {
+const getById = async (req, res) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id);
     if (!campaign) return res.status(404).json({ error: "Not found" });
@@ -40,7 +41,7 @@ exports.getById = async (req, res) => {
   }
 };
 
-exports.create = async (req, res) => {
+const create = async (req, res) => {
   try {
     const campaign = await Campaign.create(req.body);
     res.status(201).json(campaign);
@@ -49,7 +50,7 @@ exports.create = async (req, res) => {
   }
 };
 
-exports.update = async (req, res) => {
+const update = async (req, res) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id);
     if (!campaign) return res.status(404).json({ error: "Not found" });
@@ -60,7 +61,7 @@ exports.update = async (req, res) => {
   }
 };
 
-exports.delete = async (req, res) => {
+const deleteCampaign = async (req, res) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id);
     if (!campaign) return res.status(404).json({ error: "Not found" });
@@ -69,4 +70,12 @@ exports.delete = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: "Failed to delete campaign" });
   }
+};
+
+export default {
+  getAll,
+  getById,
+  create,
+  update,
+  delete: deleteCampaign,
 };

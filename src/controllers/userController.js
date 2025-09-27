@@ -1,7 +1,7 @@
-// Example User controller
-const User = require("../models/User");
+import User from "../models/User.js";
+import { Op } from "sequelize";
 
-exports.getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
     const {
       name,
@@ -14,8 +14,8 @@ exports.getAllUsers = async (req, res) => {
       offset = 0,
     } = req.query;
     const where = {};
-    if (name) where.name = { [require("sequelize").Op.like]: `%${name}%` };
-    if (email) where.email = { [require("sequelize").Op.like]: `%${email}%` };
+    if (name) where.name = { [Op.like]: `%${name}%` };
+    if (email) where.email = { [Op.like]: `%${email}%` };
     if (role) where.role = role;
     if (status) where.status = status;
 
@@ -34,7 +34,7 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-exports.getById = async (req, res) => {
+const getById = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: "Not found" });
@@ -44,7 +44,7 @@ exports.getById = async (req, res) => {
   }
 };
 
-exports.create = async (req, res) => {
+const create = async (req, res) => {
   try {
     const user = await User.create(req.body);
     res.status(201).json(user);
@@ -53,7 +53,7 @@ exports.create = async (req, res) => {
   }
 };
 
-exports.update = async (req, res) => {
+const update = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: "Not found" });
@@ -64,7 +64,7 @@ exports.update = async (req, res) => {
   }
 };
 
-exports.delete = async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: "Not found" });
@@ -73,4 +73,12 @@ exports.delete = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: "Failed to delete user" });
   }
+};
+
+export default {
+  getAllUsers,
+  getById,
+  create,
+  update,
+  delete: deleteUser,
 };

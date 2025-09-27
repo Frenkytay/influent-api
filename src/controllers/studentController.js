@@ -1,6 +1,7 @@
-const Student = require("../models/Student");
+import Student from "../models/Student.js";
+import { Op } from "sequelize";
 
-exports.getAll = async (req, res) => {
+const getAll = async (req, res) => {
   try {
     const {
       university,
@@ -14,9 +15,8 @@ exports.getAll = async (req, res) => {
       offset = 0,
     } = req.query;
     const where = {};
-    if (university)
-      where.university = { [require("sequelize").Op.like]: `%${university}%` };
-    if (major) where.major = { [require("sequelize").Op.like]: `%${major}%` };
+    if (university) where.university = { [Op.like]: `%${university}%` };
+    if (major) where.major = { [Op.like]: `%${major}%` };
     if (year) where.year = year;
     if (gpa) where.gpa = gpa;
     if (status) where.status = status;
@@ -35,7 +35,7 @@ exports.getAll = async (req, res) => {
   }
 };
 
-exports.getById = async (req, res) => {
+const getById = async (req, res) => {
   try {
     const student = await Student.findByPk(req.params.id);
     if (!student) return res.status(404).json({ error: "Not found" });
@@ -45,7 +45,7 @@ exports.getById = async (req, res) => {
   }
 };
 
-exports.create = async (req, res) => {
+const create = async (req, res) => {
   try {
     const student = await Student.create(req.body);
     res.status(201).json(student);
@@ -54,7 +54,7 @@ exports.create = async (req, res) => {
   }
 };
 
-exports.update = async (req, res) => {
+const update = async (req, res) => {
   try {
     const student = await Student.findByPk(req.params.id);
     if (!student) return res.status(404).json({ error: "Not found" });
@@ -65,7 +65,7 @@ exports.update = async (req, res) => {
   }
 };
 
-exports.delete = async (req, res) => {
+const deleteStudent = async (req, res) => {
   try {
     const student = await Student.findByPk(req.params.id);
     if (!student) return res.status(404).json({ error: "Not found" });
@@ -74,4 +74,12 @@ exports.delete = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: "Failed to delete student" });
   }
+};
+
+export default {
+  getAll,
+  getById,
+  create,
+  update,
+  delete: deleteStudent,
 };

@@ -1,5 +1,5 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db.js";
 
 const Notification = sequelize.define(
   "Notification",
@@ -38,4 +38,4 @@ const Notification = sequelize.define(
   }
 );
 
-module.exports = Notification;
+export default Notification;

@@ -1,6 +1,7 @@
-const ChatRoom = require("../models/ChatRoom");
+import ChatRoom from "../models/ChatRoom.js";
+import { Op } from "sequelize";
 
-exports.getAll = async (req, res) => {
+const getAll = async (req, res) => {
   try {
     const {
       name,
@@ -11,7 +12,7 @@ exports.getAll = async (req, res) => {
       offset = 0,
     } = req.query;
     const where = {};
-    if (name) where.name = { [require("sequelize").Op.like]: `%${name}%` };
+    if (name) where.name = { [Op.like]: `%${name}%` };
     if (status) where.status = status;
 
     const options = {
@@ -28,7 +29,7 @@ exports.getAll = async (req, res) => {
   }
 };
 
-exports.getById = async (req, res) => {
+const getById = async (req, res) => {
   try {
     const room = await ChatRoom.findByPk(req.params.id);
     if (!room) return res.status(404).json({ error: "Not found" });
@@ -38,7 +39,7 @@ exports.getById = async (req, res) => {
   }
 };
 
-exports.create = async (req, res) => {
+const create = async (req, res) => {
   try {
     const room = await ChatRoom.create(req.body);
     res.status(201).json(room);
@@ -47,7 +48,7 @@ exports.create = async (req, res) => {
   }
 };
 
-exports.update = async (req, res) => {
+const update = async (req, res) => {
   try {
     const room = await ChatRoom.findByPk(req.params.id);
     if (!room) return res.status(404).json({ error: "Not found" });
@@ -58,7 +59,7 @@ exports.update = async (req, res) => {
   }
 };
 
-exports.delete = async (req, res) => {
+const deleteChatRoom = async (req, res) => {
   try {
     const room = await ChatRoom.findByPk(req.params.id);
     if (!room) return res.status(404).json({ error: "Not found" });
@@ -67,4 +68,12 @@ exports.delete = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: "Failed to delete chat room" });
   }
+};
+
+export default {
+  getAll,
+  getById,
+  create,
+  update,
+  delete: deleteChatRoom,
 };
