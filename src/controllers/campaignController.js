@@ -1,4 +1,5 @@
 import Campaign from "../models/Campaign.js";
+import CampaignContentTypes from "../models/CampaignContentTypes.js";
 import { Op } from "sequelize";
 
 const getAll = async (req, res) => {
@@ -21,6 +22,12 @@ const getAll = async (req, res) => {
       where,
       limit: parseInt(limit),
       offset: parseInt(offset),
+      include: [
+        {
+          model: CampaignContentTypes,
+          as: "contentTypes",
+        },
+      ],
     };
     if (sort) options.order = [[sort, order.toUpperCase()]];
 
@@ -33,7 +40,14 @@ const getAll = async (req, res) => {
 
 const getById = async (req, res) => {
   try {
-    const campaign = await Campaign.findByPk(req.params.id);
+    const campaign = await Campaign.findByPk(req.params.id, {
+      include: [
+        {
+          model: CampaignContentTypes,
+          as: "contentTypes",
+        },
+      ],
+    });
     if (!campaign) return res.status(404).json({ error: "Not found" });
     res.json(campaign);
   } catch (err) {

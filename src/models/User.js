@@ -38,6 +38,10 @@ const User = sequelize.define(
       type: DataTypes.ENUM("active", "inactive", "suspended"),
       defaultValue: "active",
     },
+    profile_image: {
+      type: DataTypes.STRING,
+      comment: "User profile image path",
+    },
   },
   {
     tableName: "user",

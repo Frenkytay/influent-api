@@ -2,6 +2,7 @@ import User from "./User.js";
 import Student from "./Student.js";
 import Campaign from "./Campaign.js";
 import CampaignUsers from "./CampaignUsers.js";
+import CampaignContentTypes from "./CampaignContentTypes.js";
 import ChatRoom from "./ChatRoom.js";
 import ChatMessage from "./ChatMessage.js";
 import Review from "./Review.js";
@@ -16,6 +17,12 @@ Campaign.belongsTo(Student, { foreignKey: "student_id" });
 
 Campaign.hasMany(CampaignUsers, { foreignKey: "campaign_id" });
 CampaignUsers.belongsTo(Campaign, { foreignKey: "campaign_id" });
+
+Campaign.hasMany(CampaignContentTypes, {
+  foreignKey: "campaign_id",
+  as: "contentTypes",
+});
+CampaignContentTypes.belongsTo(Campaign, { foreignKey: "campaign_id" });
 
 Student.hasMany(CampaignUsers, { foreignKey: "student_id" });
 CampaignUsers.belongsTo(Student, { foreignKey: "student_id" });
@@ -49,6 +56,7 @@ export {
   Student,
   Campaign,
   CampaignUsers,
+  CampaignContentTypes,
   ChatRoom,
   ChatMessage,
   Review,
