@@ -12,36 +12,34 @@ const Campaign = sequelize.define(
     student_id: {
       type: DataTypes.INTEGER,
     },
-    rating: {
-      type: DataTypes.INTEGER,
-      validate: { min: 1, max: 5 },
-    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    description: {
-      type: DataTypes.TEXT,
+    campaign_category: {
+      type: DataTypes.STRING(100),
+      comment: "Category of campaign (e.g., Fashion, Beauty, Tech)",
     },
-    requirements: {
-      type: DataTypes.TEXT,
+    influencer_category: {
+      type: DataTypes.JSON,
+      comment: "Array of influencer categories",
     },
-    salary: {
-      type: DataTypes.DECIMAL(10, 2),
+    has_product: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      comment: "Whether campaign has a product",
     },
-    // New fields based on form
-    platform: {
-      type: DataTypes.STRING(50),
-      comment: "Instagram, TikTok, YouTube, etc.",
+    product_name: {
+      type: DataTypes.STRING,
+      comment: "Name of the product",
     },
-    influencer_count: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-      comment: "Number of influencers needed",
-    },
-    campaign_price: {
+    product_value: {
       type: DataTypes.DECIMAL(12, 2),
-      comment: "Total campaign budget",
+      comment: "Value/price of the product",
+    },
+    product_desc: {
+      type: DataTypes.TEXT,
+      comment: "Description of the product",
     },
     start_date: {
       type: DataTypes.DATE,
@@ -63,24 +61,54 @@ const Campaign = sequelize.define(
       type: DataTypes.TEXT,
       comment: "Guidelines for captions",
     },
-    reference_media: {
+    content_reference: {
       type: DataTypes.TEXT,
-      comment: "Reference photos/videos URLs (JSON array)",
+      comment: "Reference description for content",
+    },
+    // reference_files: {
+    //   type: DataTypes.JSON,
+    //   comment: "Array of reference file URLs",
+    // },
+    influencer_count: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      comment: "Number of influencers needed",
+    },
+    price_per_post: {
+      type: DataTypes.DECIMAL(10, 2),
+      comment: "Price per post for each content type",
+    },
+    min_followers: {
+      type: DataTypes.INTEGER,
+      comment: "Minimum followers required for influencers",
+    },
+    selected_gender: {
+      type: DataTypes.STRING(50),
+      comment: "Target gender for influencers",
+    },
+    selected_age: {
+      type: DataTypes.STRING(100),
+      comment: "Target age range for influencers (e.g., 18-25)",
+    },
+    criteria_desc: {
+      type: DataTypes.TEXT,
+      comment: "Description of selection criteria",
     },
     banner_image: {
       type: DataTypes.STRING,
       comment: "Campaign banner image path",
     },
     reference_images: {
-      type: DataTypes.TEXT,
-      comment: "JSON array of reference image paths",
+      type: DataTypes.JSON,
+      comment: "Array of reference image paths",
     },
     status: {
       type: DataTypes.ENUM("active", "inactive", "completed"),
       defaultValue: "active",
     },
-    deadline: {
-      type: DataTypes.DATE,
+    rating: {
+      type: DataTypes.INTEGER,
+      validate: { min: 1, max: 5 },
     },
     created_at: {
       type: DataTypes.DATE,
