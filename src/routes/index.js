@@ -11,6 +11,7 @@ import notificationRoutes from "./notificationRoutes.js";
 import imageRoutes from "./imageRoutes.js";
 import uploadRoutes from "./uploadRoutes.js";
 import paymentRoutes from "./paymentRoutes.js";
+import authRoutes from "./authRoutes.js";
 
 const router = express.Router();
 router.use("/v1/users", userRoutes);
@@ -25,5 +26,6 @@ router.use("/v1/notifications", notificationRoutes);
 router.use("/uploads", imageRoutes);
 router.use("/v1/upload", uploadRoutes);
 router.use("/v1/payments", paymentRoutes);
+router.use("/v1/auth", authRoutes);
 
 export default router;

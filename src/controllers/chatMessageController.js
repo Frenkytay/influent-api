@@ -1,4 +1,5 @@
 import ChatMessage from "../models/ChatMessage.js";
+import User from "../models/User.js";
 
 const getAll = async (req, res) => {
   try {
@@ -20,7 +21,7 @@ const getAll = async (req, res) => {
       where,
       limit: parseInt(limit),
       offset: parseInt(offset),
-      // include: [{ model: User, as: "user" }],
+      include: [{ model: User }],
     };
     if (sort) options.order = [[sort, order.toUpperCase()]];
 

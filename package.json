@@ -16,6 +16,9 @@
     "express": "^4.19.2",
     "midtrans-client": "^1.4.3",
     "multer": "^2.0.2",
+    "socket.io": "^4.8.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.15.1",
     "sequelize": "^6.37.7",
     "uuid": "^13.0.0"

@@ -5,6 +5,7 @@ import CampaignUsers from "./CampaignUsers.js";
 import CampaignContentTypes from "./CampaignContentTypes.js";
 import ChatRoom from "./ChatRoom.js";
 import ChatMessage from "./ChatMessage.js";
+import ChatRoomParticipant from "./ChatRoomParticipant.js";
 import Review from "./Review.js";
 import Notification from "./Notification.js";
 import Payment from "./Payment.js";
@@ -38,6 +39,24 @@ CampaignUsers.belongsTo(Campaign, {
 ChatRoom.hasMany(ChatMessage, { foreignKey: "chat_room_id" });
 ChatMessage.belongsTo(ChatRoom, { foreignKey: "chat_room_id" });
 
+// participants (many-to-many through participant table)
+ChatRoom.hasMany(ChatRoomParticipant, { foreignKey: "chat_room_id" });
+ChatRoomParticipant.belongsTo(ChatRoom, { foreignKey: "chat_room_id" });
+
+User.hasMany(ChatRoomParticipant, { foreignKey: "user_id" });
+ChatRoomParticipant.belongsTo(User, { foreignKey: "user_id" });
+
+User.belongsToMany(ChatRoom, {
+  through: ChatRoomParticipant,
+  foreignKey: "user_id",
+  otherKey: "chat_room_id",
+});
+ChatRoom.belongsToMany(User, {
+  through: ChatRoomParticipant,
+  foreignKey: "chat_room_id",
+  otherKey: "user_id",
+});
+
 User.hasMany(ChatMessage, { foreignKey: "user_id" });
 ChatMessage.belongsTo(User, { foreignKey: "user_id" });
 
@@ -66,6 +85,7 @@ export {
   CampaignContentTypes,
   ChatRoom,
   ChatMessage,
+  ChatRoomParticipant,
   Review,
   Notification,
   Payment,

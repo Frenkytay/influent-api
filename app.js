@@ -5,6 +5,8 @@ import cors from "cors";
 import config from "./src/config/config.js";
 import routes from "./src/routes/index.js";
 import errorHandler from "./src/middlewares/errorHandler.js";
+import initChatSockets from "./src/sockets/chat.js";
+import http from "http";
 
 const app = express();
 
@@ -28,6 +30,13 @@ app.use("/api", routes);
 app.use(errorHandler);
 
 const PORT = config.port || 3000;
-app.listen(PORT, () => {
+
+// Create HTTP server so we can attach socket.io
+const server = http.createServer(app);
+
+// Initialize socket.io chat handlers
+initChatSockets(server);
+
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
