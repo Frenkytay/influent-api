@@ -10,6 +10,7 @@ import reviewRoutes from "./reviewRoutes.js";
 import notificationRoutes from "./notificationRoutes.js";
 import imageRoutes from "./imageRoutes.js";
 import uploadRoutes from "./uploadRoutes.js";
+import paymentRoutes from "./paymentRoutes.js";
 
 const router = express.Router();
 router.use("/v1/users", userRoutes);
@@ -23,5 +24,6 @@ router.use("/v1/reviews", reviewRoutes);
 router.use("/v1/notifications", notificationRoutes);
 router.use("/uploads", imageRoutes);
 router.use("/v1/upload", uploadRoutes);
+router.use("/v1/payments", paymentRoutes);
 
 export default router;

@@ -65,10 +65,10 @@ const Campaign = sequelize.define(
       type: DataTypes.TEXT,
       comment: "Reference description for content",
     },
-    // reference_files: {
-    //   type: DataTypes.JSON,
-    //   comment: "Array of reference file URLs",
-    // },
+    reference_files: {
+      type: DataTypes.JSON,
+      comment: "Array of reference file URLs",
+    },
     influencer_count: {
       type: DataTypes.INTEGER,
       defaultValue: 0,

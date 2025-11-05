@@ -7,6 +7,7 @@ import ChatRoom from "./ChatRoom.js";
 import ChatMessage from "./ChatMessage.js";
 import Review from "./Review.js";
 import Notification from "./Notification.js";
+import Payment from "./Payment.js";
 
 // Example associations (add all as per your DDL)
 User.hasOne(Student, { foreignKey: "user_id" });
@@ -51,6 +52,12 @@ Review.belongsTo(User, { as: "reviewee", foreignKey: "reviewee_user_id" });
 Campaign.hasMany(Review, { foreignKey: "campaign_id" });
 Review.belongsTo(Campaign, { foreignKey: "campaign_id" });
 
+// Payments
+Campaign.hasMany(Payment, { foreignKey: "campaign_id" });
+Payment.belongsTo(Campaign, { foreignKey: "campaign_id" });
+User.hasMany(Payment, { foreignKey: "user_id" });
+Payment.belongsTo(User, { foreignKey: "user_id" });
+
 export {
   User,
   Student,
@@ -61,4 +68,5 @@ export {
   ChatMessage,
   Review,
   Notification,
+  Payment,
 };
