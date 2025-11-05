@@ -274,7 +274,8 @@ export const handleReturn = async (req, res) => {
       )}&status=${encodeURIComponent(
         statusResponse.transaction_status || newStatus
       )}`
-    );
+      );
+      
   } catch (err) {
     console.error("Error handling return:", err);
     return res.status(500).send("Internal error");
