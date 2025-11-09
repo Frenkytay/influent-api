@@ -14,7 +14,7 @@ try {
   console.error("Failed to load openapi.json:", err.message);
 }
 
-router.use("/", swaggerUi.serve);
-router.get("/", swaggerUi.setup(openapi));
+// Use combined middleware so swagger-ui assets are served relative to this router's mount path
+router.use("/", swaggerUi.serve, swaggerUi.setup(openapi));
 
 export default router;
