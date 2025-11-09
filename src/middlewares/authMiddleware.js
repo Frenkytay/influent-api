@@ -14,7 +14,6 @@ export default function authMiddleware(req, res, next) {
     req.user = { id: payload.sub, email: payload.email, role: payload.role };
     return next();
   } catch (err) {
-    console.log("USER TIDA VALID");
     return res.status(401).json({ error: "Invalid or expired token" });
   }
 }

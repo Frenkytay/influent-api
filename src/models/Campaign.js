@@ -9,7 +9,7 @@ const Campaign = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    student_id: {
+    user_id: {
       type: DataTypes.INTEGER,
     },
     title: {

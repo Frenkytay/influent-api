@@ -1,0 +1,1116 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Influent API",
+    "version": "1.0.0",
+    "description": "OpenAPI specification for the Influent backend API (partial)."
+  },
+  "basePath": "/api",
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Base path for the API"
+    }
+  ],
+  "paths": {
+    "/v1/auth/login": {
+      "post": {
+        "summary": "Login",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users": {
+      "get": {
+        "summary": "List users",
+        "tags": ["Users"],
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "post": {
+        "summary": "Create user",
+        "tags": ["Users"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/User" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } }
+      }
+    },
+    "/v1/users/{id}": {
+      "get": {
+        "summary": "Get user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "put": {
+        "summary": "Update user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/User" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "delete": {
+        "summary": "Delete user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "Deleted" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/students": {
+      "get": {
+        "summary": "List students",
+        "tags": ["Students"],
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "post": {
+        "summary": "Create student",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Student" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/students/{id}": {
+      "get": {
+        "summary": "Get student",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "summary": "Update student",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Student" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } }
+      },
+      "delete": {
+        "summary": "Delete student",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "Deleted" } }
+      }
+    },
+    "/v1/campaigns": {
+      "get": {
+        "summary": "List campaigns",
+        "tags": ["Campaigns"],
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer" } },
+          { "name": "offset", "in": "query", "schema": { "type": "integer" } },
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Admin only: filter by user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of campaigns",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Campaign" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "post": {
+        "summary": "Create campaign",
+        "tags": ["Campaigns"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Campaign" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Campaign" }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/campaigns/{id}": {
+      "get": {
+        "summary": "Get campaign by id",
+        "tags": ["Campaigns"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Campaign",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Campaign" }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "put": {
+        "summary": "Update campaign",
+        "tags": ["Campaigns"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Campaign" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "delete": {
+        "summary": "Delete campaign",
+        "tags": ["Campaigns"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "Deleted" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/campaigns/category/{category}": {
+      "get": {
+        "summary": "Get campaigns by category",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/campaign-users": {
+      "get": {
+        "summary": "List campaign users",
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "post": {
+        "summary": "Create campaign user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CampaignUser" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/campaign-users/{id}": {
+      "get": {
+        "summary": "Get campaign user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "put": {
+        "summary": "Update campaign user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CampaignUser" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "delete": {
+        "summary": "Delete campaign user",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "Deleted" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/campaign-content-types": {
+      "get": {
+        "summary": "List content types",
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "post": {
+        "summary": "Create content type",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CampaignContentType" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/campaign-content-types/{id}": {
+      "get": {
+        "summary": "Get content type",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "summary": "Update content type",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CampaignContentType" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } }
+      },
+      "delete": {
+        "summary": "Delete content type",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "Deleted" } }
+      }
+    },
+    "/v1/chat-rooms": {
+      "get": {
+        "summary": "List chat rooms",
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "post": {
+        "summary": "Create chat room",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChatRoom" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/chat-rooms/mine": {
+      "get": {
+        "summary": "Get my chat rooms",
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/chat-rooms/{id}": {
+      "get": {
+        "summary": "Get chat room",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "put": {
+        "summary": "Update chat room",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChatRoom" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "delete": {
+        "summary": "Delete chat room",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "Deleted" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/chat-messages": {
+      "get": {
+        "summary": "List chat messages",
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "post": {
+        "summary": "Create chat message",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChatMessage" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/chat-messages/{id}": {
+      "get": {
+        "summary": "Get message",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "summary": "Update message",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChatMessage" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } }
+      },
+      "delete": {
+        "summary": "Delete message",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "Deleted" } }
+      }
+    },
+    "/v1/reviews": {
+      "get": {
+        "summary": "List reviews",
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "post": {
+        "summary": "Create review",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Review" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/reviews/{id}": {
+      "get": {
+        "summary": "Get review",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "summary": "Update review",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Review" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } }
+      },
+      "delete": {
+        "summary": "Delete review",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "Deleted" } }
+      }
+    },
+    "/v1/notifications": {
+      "get": {
+        "summary": "List notifications",
+        "responses": { "200": { "description": "OK" } },
+        "security": [{ "bearerAuth": [] }]
+      },
+      "post": {
+        "summary": "Create notification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Notification" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/notifications/{id}": {
+      "get": {
+        "summary": "Get notification",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "put": {
+        "summary": "Update notification",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Notification" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Updated" } }
+      },
+      "delete": {
+        "summary": "Delete notification",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": { "200": { "description": "Deleted" } }
+      }
+    },
+    "/v1/payments": {
+      "post": {
+        "summary": "Create payment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PaymentRequest" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "Created" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/payments/notification": {
+      "post": {
+        "summary": "Payment notification (Midtrans)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/v1/payments/return": {
+      "get": {
+        "summary": "Payment return handler",
+        "responses": { "302": { "description": "Redirect/Return" } }
+      }
+    },
+    "/v1/payments/{id}": {
+      "get": {
+        "summary": "Get payment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/uploads/{filename}": {
+      "get": {
+        "summary": "Serve uploaded image",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image file (binary)",
+            "content": {
+              "image/*": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/upload/campaign/{id}/banner": {
+      "post": {
+        "summary": "Upload campaign banner",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "banner_image": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Uploaded" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/upload/campaign/{id}/references": {
+      "post": {
+        "summary": "Upload campaign references",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reference_images": {
+                    "type": "array",
+                    "items": { "type": "string", "format": "binary" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Uploaded" } },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/v1/upload/user/{id}/profile": {
+      "post": {
+        "summary": "Upload user profile image",
+        "tags": ["Uploads"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "profile_image": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "profile_image": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "integer", "readOnly": true },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "writeOnly": true },
+          "role": { "type": "string", "enum": ["student", "company", "admin"] },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "suspended"]
+          },
+          "profile_image": { "type": "string" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": ["name", "email", "password", "role"]
+      },
+      "Student": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "integer" },
+          "university": { "type": "string" },
+          "major": { "type": "string" },
+          "year": { "type": "string", "format": "date" },
+          "phone_number": { "type": "string" },
+          "gpa": { "type": "number", "format": "float" },
+          "status": { "type": "boolean" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": ["user_id"]
+      },
+      "Campaign": {
+        "type": "object",
+        "properties": {
+          "campaign_id": { "type": "integer", "readOnly": true },
+          "user_id": { "type": "integer" },
+          "title": { "type": "string" },
+          "campaign_category": { "type": "string" },
+          "influencer_category": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "has_product": { "type": "boolean" },
+          "product_name": { "type": "string" },
+          "product_value": { "type": "number", "format": "double" },
+          "product_desc": { "type": "string" },
+          "start_date": { "type": "string", "format": "date-time" },
+          "end_date": { "type": "string", "format": "date-time" },
+          "submission_deadline": { "type": "string", "format": "date-time" },
+          "content_guidelines": { "type": "string" },
+          "caption_guidelines": { "type": "string" },
+          "content_reference": { "type": "string" },
+          "reference_files": { "type": "array", "items": { "type": "string" } },
+          "influencer_count": { "type": "integer" },
+          "price_per_post": { "type": "number", "format": "double" },
+          "min_followers": { "type": "integer" },
+          "selected_gender": { "type": "string" },
+          "selected_age": { "type": "string" },
+          "criteria_desc": { "type": "string" },
+          "banner_image": { "type": "string" },
+          "reference_images": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "completed"]
+          },
+          "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": ["title"]
+      },
+      "CampaignUser": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "campaign_id": { "type": "integer" },
+          "student_id": { "type": "integer" },
+          "applied_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "application_status": {
+            "type": "string",
+            "enum": ["pending", "accepted", "rejected"]
+          },
+          "application_notes": { "type": "string" },
+          "accepted_at": { "type": "string", "format": "date-time" },
+          "rejected_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["campaign_id", "student_id"]
+      },
+      "CampaignContentType": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "campaign_id": { "type": "integer" },
+          "content_type": { "type": "string" },
+          "post_count": { "type": "integer" },
+          "price_per_post": { "type": "number", "format": "double" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": ["campaign_id", "content_type"]
+      },
+      "ChatRoom": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "name": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "archived"] },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      },
+      "ChatMessage": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "user_id": { "type": "integer" },
+          "chat_room_id": { "type": "integer" },
+          "message": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "is_read": { "type": "boolean" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": ["user_id", "chat_room_id", "message"]
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "creator_id": { "type": "integer" },
+          "reviewee_user_id": { "type": "integer" },
+          "campaign_id": { "type": "integer" },
+          "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "comment": { "type": "string" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": ["creator_id", "reviewee_user_id"]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "user_id": { "type": "integer" },
+          "type": { "type": "string" },
+          "title": { "type": "string" },
+          "message": { "type": "string" },
+          "is_read": { "type": "boolean" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": ["user_id", "type"]
+      },
+      "PaymentRequest": {
+        "type": "object",
+        "properties": {
+          "campaign_id": { "type": "integer" },
+          "user_id": { "type": "integer" }
+        },
+        "required": ["campaign_id"]
+      }
+    }
+  }
+}

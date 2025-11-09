@@ -27,7 +27,11 @@ const getAll = async (req, res) => {
       limit: parseInt(limit),
       offset: parseInt(offset),
       include: [
-        { model: User, as: "user" },
+        {
+          model: User,
+          as: "user",
+          attributes: ["user_id", "name", "email", "profile_image", "role"],
+        },
         { model: Campaign, as: "campaign" },
       ],
     };

@@ -65,7 +65,9 @@ router.post(
   async (req, res) => {
     try {
       const user = await User.findByPk(req.params.id);
+      console.log(user);
       if (!user) return res.status(404).json({ error: "User not found" });
+      console.log("user not found");
 
       if (req.body.profile_image_path) {
         await user.update({ profile_image: req.body.profile_image_path });

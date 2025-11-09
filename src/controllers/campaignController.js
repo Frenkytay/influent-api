@@ -1,12 +1,13 @@
 import Campaign from "../models/Campaign.js";
 import CampaignContentTypes from "../models/CampaignContentTypes.js";
+import User from "../models/User.js";
 import { Op } from "sequelize";
 
 const getAll = async (req, res) => {
   try {
     const {
       status,
-      student_id,
+      user_id,
       title,
       campaign_category,
       sort,
@@ -17,7 +18,14 @@ const getAll = async (req, res) => {
 
     const where = {};
     if (status) where.status = status;
-    if (student_id) where.student_id = student_id;
+    // If a requester is present and is not admin, force filter to their own campaigns.
+    // Admins may pass user_id query to filter other users' campaigns.
+    if (req.user && req.user.role !== "admin") {
+      where.user_id = req.user.id;
+    } else if (user_id) {
+      // no requester or admin: allow filtering by user_id query
+      where.user_id = user_id;
+    }
     if (title) where.title = { [Op.like]: `%${title}%` };
     if (campaign_category) where.campaign_category = campaign_category;
 
@@ -26,6 +34,11 @@ const getAll = async (req, res) => {
       limit: parseInt(limit),
       offset: parseInt(offset),
       include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["user_id", "name", "email", "profile_image", "role"],
+        },
         {
           model: CampaignContentTypes,
           as: "contentTypes",
@@ -57,12 +70,25 @@ const getById = async (req, res) => {
     const campaign = await Campaign.findByPk(req.params.id, {
       include: [
         {
+          model: User,
+          as: "user",
+          attributes: ["user_id", "name", "email", "profile_image", "role"],
+        },
+        {
           model: CampaignContentTypes,
           as: "contentTypes",
         },
       ],
     });
     if (!campaign) return res.status(404).json({ error: "Not found" });
+    // If requester is present and not admin, ensure they own the campaign
+    if (
+      req.user &&
+      req.user.role !== "admin" &&
+      campaign.user_id !== req.user.id
+    ) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
     res.json(campaign);
   } catch (err) {
     console.error("Error fetching campaign:", err);
@@ -100,6 +126,11 @@ const create = async (req, res) => {
         req.body.has_product === true || req.body.has_product === "true",
     };
 
+    // If request has authenticated user, set them as owner
+    if (req.user && !campaignData.user_id) {
+      campaignData.user_id = req.user.id;
+    }
+
     const campaign = await Campaign.create(campaignData);
 
     // Handle contentItems if provided
@@ -127,6 +158,13 @@ const update = async (req, res) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id);
     if (!campaign) return res.status(404).json({ error: "Not found" });
+
+    // Only owner or admin can update
+    if (!req.user)
+      return res.status(401).json({ error: "Authentication required" });
+    if (req.user.role !== "admin" && campaign.user_id !== req.user.id) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
 
     // Parse JSON fields if they come as strings
     const updateData = {
@@ -186,6 +224,13 @@ const deleteCampaign = async (req, res) => {
     const campaign = await Campaign.findByPk(req.params.id);
     if (!campaign) return res.status(404).json({ error: "Not found" });
 
+    // Only owner or admin can delete
+    if (!req.user)
+      return res.status(401).json({ error: "Authentication required" });
+    if (req.user.role !== "admin" && campaign.user_id !== req.user.id) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     // Delete associated content types
     await CampaignContentTypes.destroy({
       where: { campaign_id: campaign.campaign_id },
@@ -216,6 +261,11 @@ const getByCategory = async (req, res) => {
       limit: parseInt(limit),
       offset: parseInt(offset),
       include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["user_id", "name", "email", "profile_image", "role"],
+        },
         {
           model: CampaignContentTypes,
           as: "contentTypes",

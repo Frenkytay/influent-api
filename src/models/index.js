@@ -14,11 +14,13 @@ import Payment from "./Payment.js";
 User.hasOne(Student, { foreignKey: "user_id" });
 Student.belongsTo(User, { foreignKey: "user_id" });
 
-Student.hasMany(Campaign, { foreignKey: "student_id" });
-Campaign.belongsTo(Student, { foreignKey: "student_id" });
-
+// Campaign ownership: campaign.user_id should reference User
 Campaign.hasMany(CampaignUsers, { foreignKey: "campaign_id" });
 CampaignUsers.belongsTo(Campaign, { foreignKey: "campaign_id" });
+
+// Associate campaigns to users (owner)
+User.hasMany(Campaign, { foreignKey: "user_id" });
+Campaign.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
 Campaign.hasMany(CampaignContentTypes, {
   foreignKey: "campaign_id",
