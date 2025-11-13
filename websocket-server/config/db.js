@@ -1,7 +1,6 @@
 import { Sequelize } from "sequelize";
 
-// Log environment variables for debugging (only in non-production)
-if (process.env.NODE_ENV !== "production") {
+
   console.log("DB Config:", {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -9,7 +8,7 @@ if (process.env.NODE_ENV !== "production") {
     user: process.env.DB_USER,
     dialect: process.env.DB_DIALECT,
   });
-}
+
 
 const sequelize = new Sequelize(
   process.env.DB_NAME || "influent_db",
