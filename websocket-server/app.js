@@ -68,11 +68,16 @@ io.use(async (socket, next) => {
   try {
     const token = socket.handshake.auth && socket.handshake.auth.token;
     if (!token) {
+      console.error("❌ No token provided");
       return next(new Error("Unauthorized: missing token"));
     }
 
     const secret = process.env.JWT_SECRET || "please_change_me_in_production";
+    console.log("🔑 JWT_SECRET exists:", !!secret);
+    console.log("🔑 JWT_SECRET length:", secret.length);
+
     const payload = jwt.verify(token, secret);
+    console.log("✅ Token verified. Payload:", payload);
 
     // Attach user info to socket
     socket.user = {
@@ -81,9 +86,11 @@ io.use(async (socket, next) => {
       role: payload.role,
     };
 
+    console.log("👤 User attached:", socket.user);
     return next();
   } catch (err) {
-    console.warn("Socket auth failed:", err.message);
+    console.error("❌ Socket auth failed:", err.message);
+    console.error("Error details:", err);
     return next(new Error("Unauthorized"));
   }
 });
