@@ -68,16 +68,11 @@ io.use(async (socket, next) => {
   try {
     const token = socket.handshake.auth && socket.handshake.auth.token;
     if (!token) {
-      console.error("❌ No token provided");
       return next(new Error("Unauthorized: missing token"));
     }
 
     const secret = process.env.JWT_SECRET || "please_change_me_in_production";
-    console.log("🔑 JWT_SECRET exists:", !!secret);
-    console.log("🔑 JWT_SECRET length:", secret.length);
-
     const payload = jwt.verify(token, secret);
-    console.log("✅ Token verified. Payload:", payload);
 
     // Attach user info to socket
     socket.user = {
@@ -86,19 +81,14 @@ io.use(async (socket, next) => {
       role: payload.role,
     };
 
-    console.log("👤 User attached:", socket.user);
     return next();
   } catch (err) {
-    console.error("❌ Socket auth failed:", err.message);
-    console.error("Error details:", err);
     return next(new Error("Unauthorized"));
   }
 });
 
 // Socket.IO connection handler
 io.on("connection", (socket) => {
-  console.log(`✓ Socket connected: ${socket.id} | User: ${socket.user?.id}`);
-
   // Join a chat room
   socket.on("joinRoom", async ({ roomId }) => {
     try {
@@ -123,7 +113,6 @@ io.on("connection", (socket) => {
       }
 
       socket.join(roomName);
-      console.log(`✓ Socket ${socket.id} joined ${roomName}`);
 
       // Send previous messages
       const messages = await ChatMessage.findAll({
@@ -144,7 +133,6 @@ io.on("connection", (socket) => {
         socketId: socket.id,
       });
     } catch (err) {
-      console.error("joinRoom error:", err.message);
       socket.emit("error", { message: "Failed to join room" });
     }
   });
@@ -155,7 +143,6 @@ io.on("connection", (socket) => {
 
     const roomName = `room-${roomId}`;
     socket.leave(roomName);
-    console.log(`✓ Socket ${socket.id} left ${roomName}`);
 
     socket.to(roomName).emit("userLeft", {
       userId: socket.user.id,
@@ -221,10 +208,7 @@ io.on("connection", (socket) => {
 
       // Broadcast to all users in room (including sender)
       io.to(roomName).emit("message", fullMessage);
-
-      console.log(`✓ Message sent to ${roomName} by user ${userId}`);
     } catch (err) {
-      console.error("message handler error:", err.message);
       socket.emit("error", { message: "Message delivery failed" });
     }
   });
@@ -246,13 +230,13 @@ io.on("connection", (socket) => {
 
       socket.emit("markedAsRead", { roomId, messageId });
     } catch (err) {
-      console.error("markAsRead error:", err.message);
+      // Silent error handling
     }
   });
 
   // Disconnect handler
-  socket.on("disconnect", (reason) => {
-    console.log(`✗ Socket ${socket.id} disconnected (${reason})`);
+  socket.on("disconnect", () => {
+    // Connection closed
   });
 });
 
