@@ -17,7 +17,11 @@ const ChatRoomParticipant = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    joined_at: {
+    last_read_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
@@ -25,12 +29,6 @@ const ChatRoomParticipant = sequelize.define(
   {
     tableName: "chatRoomParticipant",
     timestamps: false,
-    indexes: [
-      {
-        unique: true,
-        fields: ["chat_room_id", "user_id"],
-      },
-    ],
   }
 );
 
