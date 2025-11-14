@@ -5,7 +5,6 @@ import cors from "cors";
 import config from "./src/config/config.js";
 import routes from "./src/routes/index.js";
 import path from "path";
-import swaggerUiDist from "swagger-ui-dist";
 import errorHandler from "./src/middlewares/errorHandler.js";
 import initChatSockets from "./src/sockets/chat.js";
 import http from "http";
@@ -28,13 +27,6 @@ app.use(
 );
 
 app.use(express.json());
-// Serve Swagger UI static distribution under /api/docs to ensure assets (css/js) are reachable
-app.use("/api/docs", express.static(swaggerUiDist.getAbsoluteFSPath()));
-
-// Serve the OpenAPI spec at a predictable URL for the static Swagger UI bundle
-app.get("/api/openapi.json", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "openapi.json"));
-});
 app.use("/api", routes);
 app.use(errorHandler);
 
