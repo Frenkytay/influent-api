@@ -3,13 +3,19 @@ import authController from "../controllers/authController.js";
 
 const router = express.Router();
 
-// Register new user
+// Register new user (sends OTP)
 router.post("/register", authController.register);
-// Login
+// Verify OTP after registration
+router.post("/verify-otp", authController.verifyOTP);
+// Resend OTP
+router.post("/resend-otp", authController.resendOTP);
+// Login (requires verified email)
 router.post("/login", authController.login);
-// Forgot password - returns reset token in response (for dev)
-router.post("/forgot", authController.forgotPassword);
-// Reset password
-router.post("/reset", authController.resetPassword);
+// Forgot password (sends OTP)
+router.post("/forgot-password", authController.forgotPassword);
+// Verify OTP for password reset
+router.post("/verify-reset-otp", authController.verifyResetOTP);
+// Reset password with verified token
+router.post("/reset-password", authController.resetPassword);
 
 export default router;

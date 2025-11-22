@@ -38,9 +38,32 @@ const User = sequelize.define(
       type: DataTypes.ENUM("active", "inactive", "suspended"),
       defaultValue: "active",
     },
+    balance: {
+      type: DataTypes.DECIMAL(12, 2),
+      defaultValue: 0.0,
+      comment: "User account balance",
+    },
     profile_image: {
       type: DataTypes.STRING,
       comment: "User profile image path",
+    },
+    email_verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      comment: "Whether email is verified",
+    },
+    otp_code: {
+      type: DataTypes.STRING(6),
+      comment: "OTP code for email verification",
+    },
+    otp_expires_at: {
+      type: DataTypes.DATE,
+      comment: "OTP expiration timestamp",
+    },
+    otp_attempts: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      comment: "Number of failed OTP attempts",
     },
   },
   {

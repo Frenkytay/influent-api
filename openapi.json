@@ -881,6 +881,899 @@
         },
         "security": [{ "bearerAuth": [] }]
       }
+    },
+    "/v1/withdrawals/request": {
+      "post": {
+        "summary": "Request a withdrawal",
+        "description": "Submit a withdrawal request to withdraw money from your balance",
+        "tags": ["Withdrawals"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WithdrawalRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Withdrawal request submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "withdrawal": { "$ref": "#/components/schemas/Withdrawal" },
+                    "new_balance": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid request or insufficient balance" }
+        }
+      }
+    },
+    "/v1/withdrawals/my-withdrawals": {
+      "get": {
+        "summary": "Get my withdrawal history",
+        "description": "Get all withdrawal requests for the authenticated user",
+        "tags": ["Withdrawals"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Withdrawal history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "withdrawals": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Withdrawal" }
+                    },
+                    "pagination": { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/withdrawals/{id}": {
+      "get": {
+        "summary": "Get withdrawal by ID",
+        "tags": ["Withdrawals"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Withdrawal details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "withdrawal": { "$ref": "#/components/schemas/Withdrawal" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/withdrawals/{id}/cancel": {
+      "delete": {
+        "summary": "Cancel pending withdrawal",
+        "tags": ["Withdrawals"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Withdrawal cancelled" }
+        }
+      }
+    },
+    "/v1/withdrawals/admin/all": {
+      "get": {
+        "summary": "Get all withdrawals (Admin)",
+        "description": "Admin endpoint to view all withdrawal requests with filtering",
+        "tags": ["Withdrawals - Admin"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["pending", "approved", "rejected", "completed"]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All withdrawals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "withdrawals": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Withdrawal" }
+                    },
+                    "pagination": { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/withdrawals/{id}/approve": {
+      "put": {
+        "summary": "Approve withdrawal (Admin)",
+        "tags": ["Withdrawals - Admin"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "review_notes": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Withdrawal approved" }
+        }
+      }
+    },
+    "/v1/withdrawals/{id}/reject": {
+      "put": {
+        "summary": "Reject withdrawal and refund balance (Admin)",
+        "tags": ["Withdrawals - Admin"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rejection_reason": { "type": "string" }
+                },
+                "required": ["rejection_reason"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Withdrawal rejected and balance refunded"
+          }
+        }
+      }
+    },
+    "/v1/withdrawals/{id}/complete": {
+      "put": {
+        "summary": "Complete withdrawal with transfer proof (Admin)",
+        "tags": ["Withdrawals - Admin"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "transfer_proof": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Image proof of bank transfer"
+                  },
+                  "review_notes": { "type": "string" }
+                },
+                "required": ["transfer_proof"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Withdrawal completed, email sent to user" }
+        }
+      }
+    },
+    "/v1/transactions/balance": {
+      "get": {
+        "summary": "Get current balance",
+        "description": "Get user's current balance and summary statistics",
+        "tags": ["Transactions"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Balance information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user_id": { "type": "integer" },
+                    "name": { "type": "string" },
+                    "email": { "type": "string" },
+                    "current_balance": { "type": "number" },
+                    "total_earned": { "type": "number" },
+                    "total_withdrawn": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions/my-transactions": {
+      "get": {
+        "summary": "Get my transaction history",
+        "tags": ["Transactions"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["credit", "debit"] }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "campaign_payment",
+                "withdrawal",
+                "refund",
+                "bonus",
+                "penalty",
+                "adjustment"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transactions": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Transaction" }
+                    },
+                    "current_balance": { "type": "number" },
+                    "pagination": { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions/admin/all": {
+      "get": {
+        "summary": "Get all transactions (Admin)",
+        "tags": ["Transactions - Admin"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["credit", "debit"] }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 50 }
+          }
+        ],
+        "responses": {
+          "200": { "description": "All transactions" }
+        }
+      }
+    },
+    "/v1/campaign-payments/pay-student": {
+      "post": {
+        "summary": "Pay a single student (Admin)",
+        "description": "Pay a student for their work on a campaign. Money is credited to their balance.",
+        "tags": ["Campaign Payments - Admin"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignPaymentRequest"
+              },
+              "example": {
+                "campaign_user_id": 1,
+                "amount": 500000,
+                "description": "Payment for Instagram post completion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "success": { "type": "boolean" },
+                    "transaction": {
+                      "$ref": "#/components/schemas/Transaction"
+                    },
+                    "student": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": { "type": "integer" },
+                        "name": { "type": "string" },
+                        "balance_before": { "type": "number" },
+                        "balance_after": { "type": "number" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaign-payments/pay-all": {
+      "post": {
+        "summary": "Pay all students in a campaign (Admin)",
+        "description": "Pay all accepted students in a campaign the same amount",
+        "tags": ["Campaign Payments - Admin"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CampaignPaymentBatch" },
+              "example": {
+                "campaign_id": 5,
+                "amount_per_student": 300000
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch payment processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "success": { "type": "boolean" },
+                    "total_students": { "type": "integer" },
+                    "paid_count": { "type": "integer" },
+                    "failed_count": { "type": "integer" },
+                    "total_paid": { "type": "number" },
+                    "results": {
+                      "type": "array",
+                      "items": { "type": "object" }
+                    },
+                    "errors": { "type": "array", "items": { "type": "object" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaign-payments/pay-custom": {
+      "post": {
+        "summary": "Pay students with custom amounts (Admin)",
+        "description": "Pay multiple students with different amounts in one request",
+        "tags": ["Campaign Payments - Admin"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignPaymentCustom"
+              },
+              "example": {
+                "payments": [
+                  {
+                    "campaign_user_id": 1,
+                    "amount": 500000,
+                    "description": "Bonus for exceptional work"
+                  },
+                  {
+                    "campaign_user_id": 2,
+                    "amount": 300000,
+                    "description": "Regular payment"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Custom payments processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "success": { "type": "boolean" },
+                    "paid_count": { "type": "integer" },
+                    "failed_count": { "type": "integer" },
+                    "results": { "type": "array" },
+                    "errors": { "type": "array" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/work-submissions": {
+      "post": {
+        "summary": "Create a new work submission",
+        "tags": ["Work Submissions"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkSubmissionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Work submission created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkSubmission"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Campaign user not found or not accepted"
+          }
+        }
+      }
+    },
+    "/v1/work-submissions/campaign/{campaign_id}": {
+      "get": {
+        "summary": "Get all submissions for a campaign",
+        "tags": ["Work Submissions"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "under_review",
+                "approved",
+                "rejected",
+                "revision_requested"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submissions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkSubmission"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/work-submissions/student/{student_id}": {
+      "get": {
+        "summary": "Get all submissions by a student",
+        "tags": ["Work Submissions"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "student_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "under_review",
+                "approved",
+                "rejected",
+                "revision_requested"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submissions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkSubmission"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/work-submissions/{submission_id}": {
+      "get": {
+        "summary": "Get a single submission by ID",
+        "tags": ["Work Submissions"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkSubmission"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Submission not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update submission (for students)",
+        "tags": ["Work Submissions"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkSubmissionUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submission updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkSubmission"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Cannot update submission with current status"
+          },
+          "404": {
+            "description": "Submission not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete submission",
+        "tags": ["Work Submissions"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission deleted successfully"
+          },
+          "403": {
+            "description": "Cannot delete submission with current status"
+          },
+          "404": {
+            "description": "Submission not found"
+          }
+        }
+      }
+    },
+    "/v1/work-submissions/{submission_id}/review": {
+      "post": {
+        "summary": "Review submission (approve/reject/request revision)",
+        "tags": ["Work Submissions"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkSubmissionReview"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submission reviewed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkSubmission"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Submission not found"
+          }
+        }
+      }
+    },
+    "/v1/work-submissions/{submission_id}/publish": {
+      "post": {
+        "summary": "Mark submission as published",
+        "tags": ["Work Submissions"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "performance_metrics": {
+                    "type": "object",
+                    "description": "Performance data (views, likes, shares, etc.)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submission marked as published",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkSubmission"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Only approved submissions can be marked as published"
+          },
+          "404": {
+            "description": "Submission not found"
+          }
+        }
+      }
+    },
+    "/v1/work-submissions/{submission_id}/metrics": {
+      "put": {
+        "summary": "Update performance metrics",
+        "tags": ["Work Submissions"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "performance_metrics": {
+                    "type": "object",
+                    "description": "Performance data (views, likes, shares, etc.)"
+                  }
+                },
+                "required": ["performance_metrics"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Performance metrics updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkSubmission"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Submission not found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1110,6 +2003,350 @@
           "user_id": { "type": "integer" }
         },
         "required": ["campaign_id"]
+      },
+      "WithdrawalRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "description": "Amount to withdraw",
+            "example": 500000
+          },
+          "bank_name": {
+            "type": "string",
+            "description": "Name of the bank",
+            "example": "BCA"
+          },
+          "account_number": {
+            "type": "string",
+            "description": "Bank account number",
+            "example": "1234567890"
+          },
+          "account_holder_name": {
+            "type": "string",
+            "description": "Name on the bank account",
+            "example": "John Doe"
+          }
+        },
+        "required": [
+          "amount",
+          "bank_name",
+          "account_number",
+          "account_holder_name"
+        ]
+      },
+      "Withdrawal": {
+        "type": "object",
+        "properties": {
+          "withdrawal_id": { "type": "integer", "readOnly": true },
+          "user_id": { "type": "integer" },
+          "amount": { "type": "number", "format": "double" },
+          "bank_name": { "type": "string" },
+          "account_number": { "type": "string" },
+          "account_holder_name": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "approved", "rejected", "completed"]
+          },
+          "request_date": { "type": "string", "format": "date-time" },
+          "reviewed_by": { "type": "integer" },
+          "reviewed_date": { "type": "string", "format": "date-time" },
+          "review_notes": { "type": "string" },
+          "transfer_proof_url": { "type": "string" },
+          "completed_date": { "type": "string", "format": "date-time" },
+          "rejection_reason": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "transaction_id": { "type": "integer", "readOnly": true },
+          "user_id": { "type": "integer" },
+          "amount": { "type": "number", "format": "double" },
+          "type": {
+            "type": "string",
+            "enum": ["credit", "debit"]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "campaign_payment",
+              "withdrawal",
+              "refund",
+              "bonus",
+              "penalty",
+              "adjustment"
+            ]
+          },
+          "reference_type": { "type": "string" },
+          "reference_id": { "type": "integer" },
+          "description": { "type": "string" },
+          "balance_before": { "type": "number", "format": "double" },
+          "balance_after": { "type": "number", "format": "double" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CampaignPaymentRequest": {
+        "type": "object",
+        "properties": {
+          "campaign_user_id": {
+            "type": "integer",
+            "description": "ID of the campaign_users record"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "description": "Amount to pay the student"
+          },
+          "description": {
+            "type": "string",
+            "description": "Payment description (optional)"
+          }
+        },
+        "required": ["campaign_user_id", "amount"]
+      },
+      "CampaignPaymentBatch": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "integer",
+            "description": "Campaign ID"
+          },
+          "amount_per_student": {
+            "type": "number",
+            "format": "double",
+            "description": "Amount to pay each student"
+          }
+        },
+        "required": ["campaign_id", "amount_per_student"]
+      },
+      "CampaignPaymentCustom": {
+        "type": "object",
+        "properties": {
+          "payments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "campaign_user_id": { "type": "integer" },
+                "amount": { "type": "number", "format": "double" },
+                "description": { "type": "string" }
+              },
+              "required": ["campaign_user_id", "amount"]
+            }
+          }
+        },
+        "required": ["payments"]
+      },
+      "WorkSubmission": {
+        "type": "object",
+        "properties": {
+          "submission_id": { "type": "integer", "readOnly": true },
+          "campaign_user_id": {
+            "type": "integer",
+            "description": "Reference to CampaignUsers record"
+          },
+          "submission_type": {
+            "type": "string",
+            "enum": ["draft", "final"],
+            "default": "draft"
+          },
+          "content_type": {
+            "type": "string",
+            "description": "Type of content (e.g., post, story, reel, video)"
+          },
+          "content_url": {
+            "type": "string",
+            "description": "URL to the submitted content/media"
+          },
+          "content_files": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Array of uploaded file paths/URLs"
+          },
+          "caption": {
+            "type": "string",
+            "description": "Caption/description for the content"
+          },
+          "hashtags": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Array of hashtags used"
+          },
+          "platform": {
+            "type": "string",
+            "description": "Social media platform (Instagram, TikTok, etc.)"
+          },
+          "submission_notes": {
+            "type": "string",
+            "description": "Additional notes from student"
+          },
+          "submitted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "under_review",
+              "approved",
+              "rejected",
+              "revision_requested"
+            ],
+            "default": "pending"
+          },
+          "reviewed_by": {
+            "type": "integer",
+            "description": "User ID of reviewer (campaign owner)"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "review_notes": {
+            "type": "string",
+            "description": "Feedback from reviewer"
+          },
+          "approved_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rejected_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revision_count": {
+            "type": "integer",
+            "default": 0,
+            "description": "Number of times revision was requested"
+          },
+          "performance_metrics": {
+            "type": "object",
+            "description": "Performance data (views, likes, shares, etc.)"
+          },
+          "is_published": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether content has been published on platform"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WorkSubmissionCreate": {
+        "type": "object",
+        "required": ["campaign_user_id"],
+        "properties": {
+          "campaign_user_id": {
+            "type": "integer",
+            "description": "Reference to CampaignUsers record"
+          },
+          "submission_type": {
+            "type": "string",
+            "enum": ["draft", "final"],
+            "default": "draft"
+          },
+          "content_type": {
+            "type": "string",
+            "description": "Type of content (e.g., post, story, reel, video)"
+          },
+          "content_url": {
+            "type": "string",
+            "description": "URL to the submitted content/media"
+          },
+          "content_files": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Array of uploaded file paths/URLs"
+          },
+          "caption": {
+            "type": "string",
+            "description": "Caption/description for the content"
+          },
+          "hashtags": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Array of hashtags used"
+          },
+          "platform": {
+            "type": "string",
+            "description": "Social media platform (Instagram, TikTok, etc.)"
+          },
+          "submission_notes": {
+            "type": "string",
+            "description": "Additional notes from student"
+          }
+        }
+      },
+      "WorkSubmissionUpdate": {
+        "type": "object",
+        "properties": {
+          "submission_type": {
+            "type": "string",
+            "enum": ["draft", "final"]
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "content_url": {
+            "type": "string"
+          },
+          "content_files": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "caption": {
+            "type": "string"
+          },
+          "hashtags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "platform": {
+            "type": "string"
+          },
+          "submission_notes": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkSubmissionReview": {
+        "type": "object",
+        "required": ["status", "reviewed_by"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "under_review",
+              "approved",
+              "rejected",
+              "revision_requested"
+            ],
+            "description": "Review decision"
+          },
+          "review_notes": {
+            "type": "string",
+            "description": "Feedback from reviewer"
+          },
+          "reviewed_by": {
+            "type": "integer",
+            "description": "User ID of the reviewer"
+          }
+        }
       }
     }
   }

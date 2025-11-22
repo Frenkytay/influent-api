@@ -9,6 +9,9 @@ import ChatRoomParticipant from "./ChatRoomParticipant.js";
 import Review from "./Review.js";
 import Notification from "./Notification.js";
 import Payment from "./Payment.js";
+import WorkSubmission from "./WorkSubmission.js";
+import Withdrawal from "./Withdrawal.js";
+import Transaction from "./Transaction.js";
 
 // Example associations (add all as per your DDL)
 User.hasOne(Student, { foreignKey: "user_id" });
@@ -79,6 +82,30 @@ Payment.belongsTo(Campaign, { foreignKey: "campaign_id" });
 User.hasMany(Payment, { foreignKey: "user_id" });
 Payment.belongsTo(User, { foreignKey: "user_id" });
 
+// Work Submissions
+CampaignUsers.hasMany(WorkSubmission, { foreignKey: "campaign_user_id" });
+WorkSubmission.belongsTo(CampaignUsers, { foreignKey: "campaign_user_id" });
+
+User.hasMany(WorkSubmission, {
+  foreignKey: "reviewed_by",
+  as: "reviewedSubmissions",
+});
+WorkSubmission.belongsTo(User, { foreignKey: "reviewed_by", as: "reviewer" });
+
+// Withdrawals
+User.hasMany(Withdrawal, { foreignKey: "user_id", as: "withdrawals" });
+Withdrawal.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+User.hasMany(Withdrawal, {
+  foreignKey: "reviewed_by",
+  as: "reviewedWithdrawals",
+});
+Withdrawal.belongsTo(User, { foreignKey: "reviewed_by", as: "reviewer" });
+
+// Transactions
+User.hasMany(Transaction, { foreignKey: "user_id", as: "transactions" });
+Transaction.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
 export {
   User,
   Student,
@@ -91,4 +118,7 @@ export {
   Review,
   Notification,
   Payment,
+  WorkSubmission,
+  Withdrawal,
+  Transaction,
 };

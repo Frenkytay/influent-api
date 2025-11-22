@@ -14,6 +14,10 @@ import uploadRoutes from "./uploadRoutes.js";
 import paymentRoutes from "./paymentRoutes.js";
 import authRoutes from "./authRoutes.js";
 import swaggerRoutes from "./swaggerRoutes.js";
+import workSubmissionRoutes from "./workSubmissionRoutes.js";
+import withdrawalRoutes from "./withdrawalRoutes.js";
+import campaignPaymentRoutes from "./campaignPaymentRoutes.js";
+import transactionRoutes from "./transactionRoutes.js";
 
 const router = express.Router();
 // Attach user info (if Authorization Bearer token provided) on every request.
@@ -32,6 +36,10 @@ router.use("/uploads", imageRoutes);
 router.use("/v1/upload", uploadRoutes);
 router.use("/v1/payments", paymentRoutes);
 router.use("/v1/auth", authRoutes);
+router.use("/v1/work-submissions", workSubmissionRoutes);
+router.use("/v1/withdrawals", withdrawalRoutes);
+router.use("/v1/campaign-payments", campaignPaymentRoutes);
+router.use("/v1/transactions", transactionRoutes);
 // Serve API docs at /api/docs
 router.use("/docs", swaggerRoutes);
 
