@@ -10,8 +10,12 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER, // Your email
     pass: process.env.SMTP_PASS, // Your email password or app password
   },
-  debug: process.env.NODE_ENV === "development", // Enable debug output
-  logger: process.env.NODE_ENV === "development", // Log to console
+  authMethod: "LOGIN", // Brevo requires LOGIN method
+  debug: true, // Enable debug output
+  logger: true, // Log to console
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
 /**
@@ -19,10 +23,11 @@ const transporter = nodemailer.createTransport({
  */
 export const sendOTPEmail = async (email, otp, name) => {
   try {
+    const fromName = process.env.SMTP_FROM_NAME || "Influent Platform";
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
+
     const mailOptions = {
-      from:
-        process.env.SMTP_FROM ||
-        `"Influent Platform" <${process.env.SMTP_USER}>`,
+      from: `"${fromName}" <${fromEmail}>`,
       to: email,
       subject: "Verify Your Email - Influent Platform",
       html: `
@@ -95,10 +100,11 @@ export const sendOTPEmail = async (email, otp, name) => {
  */
 export const sendPasswordResetOTP = async (email, otp, name) => {
   try {
+    const fromName = process.env.SMTP_FROM_NAME || "Influent Platform";
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
+
     const mailOptions = {
-      from:
-        process.env.SMTP_FROM ||
-        `"Influent Platform" <${process.env.SMTP_USER}>`,
+      from: `"${fromName}" <${fromEmail}>`,
       to: email,
       subject: "Password Reset OTP - Influent Platform",
       html: `
@@ -164,10 +170,11 @@ export const sendPasswordResetOTP = async (email, otp, name) => {
  */
 export const sendWelcomeEmail = async (email, name) => {
   try {
+    const fromName = process.env.SMTP_FROM_NAME || "Influent Platform";
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
+
     const mailOptions = {
-      from:
-        process.env.SMTP_FROM ||
-        `"Influent Platform" <${process.env.SMTP_USER}>`,
+      from: `"${fromName}" <${fromEmail}>`,
       to: email,
       subject: "Welcome to Influent Platform! 🎉",
       html: `
@@ -233,10 +240,11 @@ export const sendWithdrawalRequestEmail = async (
   withdrawalId
 ) => {
   try {
+    const fromName = process.env.SMTP_FROM_NAME || "Influent Platform";
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
+
     const mailOptions = {
-      from:
-        process.env.SMTP_FROM ||
-        `"Influent Platform" <${process.env.SMTP_USER}>`,
+      from: `"${fromName}" <${fromEmail}>`,
       to: email,
       subject: "Withdrawal Request Received - Influent Platform",
       html: `
@@ -299,10 +307,11 @@ export const sendWithdrawalCompletedEmail = async (
   transferProofUrl
 ) => {
   try {
+    const fromName = process.env.SMTP_FROM_NAME || "Influent Platform";
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
+
     const mailOptions = {
-      from:
-        process.env.SMTP_FROM ||
-        `"Influent Platform" <${process.env.SMTP_USER}>`,
+      from: `"${fromName}" <${fromEmail}>`,
       to: email,
       subject: "Withdrawal Completed - Influent Platform",
       html: `
@@ -379,10 +388,11 @@ export const sendWithdrawalRejectedEmail = async (
   reason
 ) => {
   try {
+    const fromName = process.env.SMTP_FROM_NAME || "Influent Platform";
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
+
     const mailOptions = {
-      from:
-        process.env.SMTP_FROM ||
-        `"Influent Platform" <${process.env.SMTP_USER}>`,
+      from: `"${fromName}" <${fromEmail}>`,
       to: email,
       subject: "Withdrawal Request Rejected - Influent Platform",
       html: `

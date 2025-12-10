@@ -11,18 +11,12 @@ const getAll = async (req, res) => {
       status,
       sort,
       order = "ASC",
-      limit = 20,
-      offset = 0,
     } = req.query;
     const where = {};
     if (name) where.name = { [Op.like]: `%${name}%` };
     if (status) where.status = status;
 
-    const options = {
-      where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-    };
+    const options = { where };
     if (sort) options.order = [[sort, order.toUpperCase()]];
 
     const rooms = await ChatRoom.findAll(options);

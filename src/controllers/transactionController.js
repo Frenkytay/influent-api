@@ -8,18 +8,15 @@ import User from "../models/User.js";
 export const getMyTransactions = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { page = 1, limit = 20, type, category } = req.query;
-    const offset = (page - 1) * limit;
+    const { type, category } = req.query;
 
     const whereClause = { user_id: userId };
     if (type) whereClause.type = type;
     if (category) whereClause.category = category;
 
-    const { count, rows: transactions } = await Transaction.findAndCountAll({
+    const transactions = await Transaction.findAll({
       where: whereClause,
       order: [["created_at", "DESC"]],
-      limit: parseInt(limit),
-      offset: parseInt(offset),
     });
 
     // Get current balance
@@ -30,12 +27,6 @@ export const getMyTransactions = async (req, res) => {
     return res.status(200).json({
       transactions,
       current_balance: parseFloat(user.balance || 0),
-      pagination: {
-        total: count,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        totalPages: Math.ceil(count / limit),
-      },
     });
   } catch (error) {
     console.error("Error fetching transactions:", error);
@@ -85,15 +76,14 @@ export const getTransactionById = async (req, res) => {
  */
 export const getAllTransactions = async (req, res) => {
   try {
-    const { page = 1, limit = 50, user_id, type, category } = req.query;
-    const offset = (page - 1) * limit;
+    const { user_id, type, category } = req.query;
 
     const whereClause = {};
     if (user_id) whereClause.user_id = user_id;
     if (type) whereClause.type = type;
     if (category) whereClause.category = category;
 
-    const { count, rows: transactions } = await Transaction.findAndCountAll({
+    const transactions = await Transaction.findAll({
       where: whereClause,
       include: [
         {
@@ -103,18 +93,10 @@ export const getAllTransactions = async (req, res) => {
         },
       ],
       order: [["created_at", "DESC"]],
-      limit: parseInt(limit),
-      offset: parseInt(offset),
     });
 
     return res.status(200).json({
       transactions,
-      pagination: {
-        total: count,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        totalPages: Math.ceil(count / limit),
-      },
     });
   } catch (error) {
     console.error("Error fetching all transactions:", error);

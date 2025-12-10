@@ -9,8 +9,6 @@ const getAll = async (req, res) => {
       is_read,
       sort,
       order = "ASC",
-      limit = 20,
-      offset = 0,
     } = req.query;
     const where = {};
     if (user_id) where.user_id = user_id;
@@ -19,8 +17,6 @@ const getAll = async (req, res) => {
 
     const options = {
       where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
       include: [{ model: User }],
     };
     if (sort) options.order = [[sort, order.toUpperCase()]];

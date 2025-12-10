@@ -2,15 +2,13 @@ import CampaignContentTypes from "../models/CampaignContentTypes.js";
 
 const getAll = async (req, res) => {
   try {
-    const { campaign_id, content_type, limit = 50, offset = 0 } = req.query;
+    const { campaign_id, content_type } = req.query;
     const where = {};
     if (campaign_id) where.campaign_id = campaign_id;
     if (content_type) where.content_type = content_type;
 
     const options = {
       where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
       order: [["created_at", "ASC"]],
     };
 

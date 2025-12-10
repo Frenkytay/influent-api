@@ -9,8 +9,6 @@ const getAll = async (req, res) => {
       rating,
       sort,
       order = "ASC",
-      limit = 20,
-      offset = 0,
     } = req.query;
     const where = {};
     if (creator_id) where.creator_id = creator_id;
@@ -18,11 +16,7 @@ const getAll = async (req, res) => {
     if (campaign_id) where.campaign_id = campaign_id;
     if (rating) where.rating = rating;
 
-    const options = {
-      where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-    };
+    const options = { where };
     if (sort) options.order = [[sort, order.toUpperCase()]];
 
     const reviews = await Review.findAll(options);

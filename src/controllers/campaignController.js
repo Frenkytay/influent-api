@@ -12,14 +12,13 @@ const getAll = async (req, res) => {
       campaign_category,
       sort,
       order = "DESC",
-      limit = 20,
-      offset = 0,
     } = req.query;
 
     const where = {};
     if (status) where.status = status;
     // If a requester is present and is not admin, force filter to their own campaigns.
-    // Admins may pass user_id query to filter other users' campaigns.
+    // Admins may pass user_id query to filters other users' campaigns.
+    console.log(req.user)
     if (req.user && req.user.role !== "admin") {
       where.user_id = req.user.id;
     } else if (user_id) {
@@ -31,8 +30,6 @@ const getAll = async (req, res) => {
 
     const options = {
       where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
       include: [
         {
           model: User,
@@ -48,16 +45,9 @@ const getAll = async (req, res) => {
     };
 
     const campaigns = await Campaign.findAll(options);
-    const totalCount = await Campaign.count({ where });
 
     res.json({
       data: campaigns,
-      pagination: {
-        total: totalCount,
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-        hasMore: parseInt(offset) + parseInt(limit) < totalCount,
-      },
     });
   } catch (err) {
     console.error("Error fetching campaigns:", err);
@@ -258,8 +248,6 @@ const getByCategory = async (req, res) => {
 
     const campaigns = await Campaign.findAll({
       where: { campaign_category: category },
-      limit: parseInt(limit),
-      offset: parseInt(offset),
       include: [
         {
           model: User,
@@ -274,18 +262,8 @@ const getByCategory = async (req, res) => {
       order: [["campaign_id", "DESC"]],
     });
 
-    const totalCount = await Campaign.count({
-      where: { campaign_category: category },
-    });
-
     res.json({
       data: campaigns,
-      pagination: {
-        total: totalCount,
-        limit: parseInt(limit),
-        offset: parseInt(offset),
-        hasMore: parseInt(offset) + parseInt(limit) < totalCount,
-      },
     });
   } catch (err) {
     console.error("Error fetching campaigns by category:", err);

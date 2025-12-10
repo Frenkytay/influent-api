@@ -14,8 +14,6 @@ const getAll = async (req, res) => {
       application_status,
       sort,
       order = "ASC",
-      limit = 20,
-      offset = 0,
     } = req.query;
     const where = {};
     if (campaign_id) where.campaign_id = campaign_id;
@@ -24,8 +22,6 @@ const getAll = async (req, res) => {
 
     const options = {
       where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
       include: [
         {
           model: User,

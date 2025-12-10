@@ -8,19 +8,13 @@ const getAll = async (req, res) => {
       is_read,
       sort,
       order = "ASC",
-      limit = 20,
-      offset = 0,
     } = req.query;
     const where = {};
     if (user_id) where.user_id = user_id;
     if (type) where.type = type;
     if (is_read !== undefined) where.is_read = is_read === "true";
 
-    const options = {
-      where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-    };
+    const options = { where };
     if (sort) options.order = [[sort, order.toUpperCase()]];
 
     const notifications = await Notification.findAll(options);

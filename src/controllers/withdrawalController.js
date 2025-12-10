@@ -148,15 +148,14 @@ export const requestWithdrawal = async (req, res) => {
  */
 export const getAllWithdrawals = async (req, res) => {
   try {
-    const { status, page = 1, limit = 20 } = req.query;
-    const offset = (page - 1) * limit;
+    const { status } = req.query;
 
     const whereClause = {};
     if (status) {
       whereClause.status = status;
     }
 
-    const { count, rows: withdrawals } = await Withdrawal.findAndCountAll({
+    const withdrawals = await Withdrawal.findAll({
       where: whereClause,
       include: [
         {
@@ -171,18 +170,10 @@ export const getAllWithdrawals = async (req, res) => {
         },
       ],
       order: [["request_date", "DESC"]],
-      limit: parseInt(limit),
-      offset: parseInt(offset),
     });
 
     return res.status(200).json({
       withdrawals,
-      pagination: {
-        total: count,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        totalPages: Math.ceil(count / limit),
-      },
     });
   } catch (error) {
     console.error("Error fetching withdrawals:", error);
@@ -197,10 +188,8 @@ export const getAllWithdrawals = async (req, res) => {
 export const getMyWithdrawals = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { page = 1, limit = 20 } = req.query;
-    const offset = (page - 1) * limit;
 
-    const { count, rows: withdrawals } = await Withdrawal.findAndCountAll({
+    const withdrawals = await Withdrawal.findAll({
       where: { user_id: userId },
       include: [
         {
@@ -210,18 +199,10 @@ export const getMyWithdrawals = async (req, res) => {
         },
       ],
       order: [["request_date", "DESC"]],
-      limit: parseInt(limit),
-      offset: parseInt(offset),
     });
 
     return res.status(200).json({
       withdrawals,
-      pagination: {
-        total: count,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        totalPages: Math.ceil(count / limit),
-      },
     });
   } catch (error) {
     console.error("Error fetching user withdrawals:", error);
