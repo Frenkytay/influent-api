@@ -1,8 +1,15 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const Review = sequelize.define(
-  "Review",
+class Review extends Model {
+  static associate(models) {
+    this.belongsTo(models.User, { as: "creator", foreignKey: "creator_id" });
+    this.belongsTo(models.User, { as: "reviewee", foreignKey: "reviewee_user_id" });
+    this.belongsTo(models.Campaign, { foreignKey: "campaign_id" });
+  }
+}
+
+Review.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -33,6 +40,8 @@ const Review = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "Review",
     tableName: "review",
     timestamps: false,
   }

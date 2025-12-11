@@ -1,8 +1,13 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const Notification = sequelize.define(
-  "Notification",
+class Notification extends Model {
+  static associate(models) {
+    this.belongsTo(models.User, { foreignKey: "user_id" });
+  }
+}
+
+Notification.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -33,6 +38,8 @@ const Notification = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "Notification",
     tableName: "notification",
     timestamps: false,
   }

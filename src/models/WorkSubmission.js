@@ -1,8 +1,14 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const WorkSubmission = sequelize.define(
-  "WorkSubmission",
+class WorkSubmission extends Model {
+  static associate(models) {
+    this.belongsTo(models.CampaignUsers, { foreignKey: "campaign_user_id" });
+    this.belongsTo(models.User, { foreignKey: "reviewed_by", as: "reviewer" });
+  }
+}
+
+WorkSubmission.init(
   {
     submission_id: {
       type: DataTypes.INTEGER,
@@ -112,6 +118,8 @@ const WorkSubmission = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "WorkSubmission",
     tableName: "work_submissions",
     timestamps: false,
     indexes: [

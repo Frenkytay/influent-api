@@ -1,8 +1,14 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const Withdrawal = sequelize.define(
-  "Withdrawal",
+class Withdrawal extends Model {
+  static associate(models) {
+    this.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
+    this.belongsTo(models.User, { foreignKey: "reviewed_by", as: "reviewer" });
+  }
+}
+
+Withdrawal.init(
   {
     withdrawal_id: {
       type: DataTypes.INTEGER,
@@ -82,6 +88,8 @@ const Withdrawal = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "Withdrawal",
     tableName: "withdrawal",
     timestamps: true,
     createdAt: "created_at",

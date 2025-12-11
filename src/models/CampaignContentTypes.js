@@ -1,8 +1,13 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const CampaignContentTypes = sequelize.define(
-  "CampaignContentTypes",
+class CampaignContentTypes extends Model {
+  static associate(models) {
+    this.belongsTo(models.Campaign, { foreignKey: "campaign_id" });
+  }
+}
+
+CampaignContentTypes.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -37,6 +42,8 @@ const CampaignContentTypes = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "CampaignContentTypes",
     tableName: "campaign_content_types",
     timestamps: false,
   }

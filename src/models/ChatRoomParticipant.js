@@ -1,8 +1,14 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const ChatRoomParticipant = sequelize.define(
-  "ChatRoomParticipant",
+class ChatRoomParticipant extends Model {
+  static associate(models) {
+    this.belongsTo(models.ChatRoom, { foreignKey: "chat_room_id" });
+    this.belongsTo(models.User, { foreignKey: "user_id" });
+  }
+}
+
+ChatRoomParticipant.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -27,6 +33,8 @@ const ChatRoomParticipant = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "ChatRoomParticipant",
     tableName: "chatRoomParticipant",
     timestamps: false,
   }

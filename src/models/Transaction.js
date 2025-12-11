@@ -1,8 +1,13 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const Transaction = sequelize.define(
-  "Transaction",
+class Transaction extends Model {
+  static associate(models) {
+    this.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
+  }
+}
+
+Transaction.init(
   {
     transaction_id: {
       type: DataTypes.INTEGER,
@@ -64,6 +69,8 @@ const Transaction = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "Transaction",
     tableName: "transaction",
     timestamps: false,
   }

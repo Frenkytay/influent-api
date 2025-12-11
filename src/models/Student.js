@@ -1,8 +1,14 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const Student = sequelize.define(
-  "Student",
+class Student extends Model {
+  static associate(models) {
+    this.belongsTo(models.User, { foreignKey: "user_id" });
+    this.hasMany(models.CampaignUsers, { foreignKey: "student_id" });
+  }
+}
+
+Student.init(
   {
     user_id: {
       type: DataTypes.INTEGER,
@@ -34,6 +40,8 @@ const Student = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "Student",
     tableName: "student",
     timestamps: false,
   }

@@ -13,98 +13,29 @@ import WorkSubmission from "./WorkSubmission.js";
 import Withdrawal from "./Withdrawal.js";
 import Transaction from "./Transaction.js";
 
-// Example associations (add all as per your DDL)
-User.hasOne(Student, { foreignKey: "user_id" });
-Student.belongsTo(User, { foreignKey: "user_id" });
+const models = {
+  User,
+  Student,
+  Campaign,
+  CampaignUsers,
+  CampaignContentTypes,
+  ChatRoom,
+  ChatMessage,
+  ChatRoomParticipant,
+  Review,
+  Notification,
+  Payment,
+  WorkSubmission,
+  Withdrawal,
+  Transaction,
+};
 
-// Campaign ownership: campaign.user_id should reference User
-Campaign.hasMany(CampaignUsers, { foreignKey: "campaign_id" });
-CampaignUsers.belongsTo(Campaign, { foreignKey: "campaign_id" });
-
-// Associate campaigns to users (owner)
-User.hasMany(Campaign, { foreignKey: "user_id" });
-Campaign.belongsTo(User, { foreignKey: "user_id", as: "user" });
-
-Campaign.hasMany(CampaignContentTypes, {
-  foreignKey: "campaign_id",
-  as: "contentTypes",
+// Initialize associations
+Object.keys(models).forEach((modelName) => {
+  if (models[modelName].associate) {
+    models[modelName].associate(models);
+  }
 });
-CampaignContentTypes.belongsTo(Campaign, { foreignKey: "campaign_id" });
-
-Student.hasMany(CampaignUsers, { foreignKey: "student_id" });
-CampaignUsers.belongsTo(Student, { foreignKey: "student_id" });
-
-// For CampaignUsers join with User and Campaign (for controller includes)
-CampaignUsers.belongsTo(User, { foreignKey: "student_id", as: "user" });
-CampaignUsers.belongsTo(Campaign, {
-  foreignKey: "campaign_id",
-  as: "campaign",
-});
-
-ChatRoom.hasMany(ChatMessage, { foreignKey: "chat_room_id" });
-ChatMessage.belongsTo(ChatRoom, { foreignKey: "chat_room_id" });
-
-// participants (many-to-many through participant table)
-ChatRoom.hasMany(ChatRoomParticipant, { foreignKey: "chat_room_id" });
-ChatRoomParticipant.belongsTo(ChatRoom, { foreignKey: "chat_room_id" });
-
-User.hasMany(ChatRoomParticipant, { foreignKey: "user_id" });
-ChatRoomParticipant.belongsTo(User, { foreignKey: "user_id" });
-
-User.belongsToMany(ChatRoom, {
-  through: ChatRoomParticipant,
-  foreignKey: "user_id",
-  otherKey: "chat_room_id",
-});
-ChatRoom.belongsToMany(User, {
-  through: ChatRoomParticipant,
-  foreignKey: "chat_room_id",
-  otherKey: "user_id",
-});
-
-User.hasMany(ChatMessage, { foreignKey: "user_id" });
-ChatMessage.belongsTo(User, { foreignKey: "user_id" });
-
-User.hasMany(Notification, { foreignKey: "user_id" });
-Notification.belongsTo(User, { foreignKey: "user_id" });
-
-User.hasMany(Review, { foreignKey: "creator_id" });
-User.hasMany(Review, { foreignKey: "reviewee_user_id" });
-Review.belongsTo(User, { as: "creator", foreignKey: "creator_id" });
-Review.belongsTo(User, { as: "reviewee", foreignKey: "reviewee_user_id" });
-
-Campaign.hasMany(Review, { foreignKey: "campaign_id" });
-Review.belongsTo(Campaign, { foreignKey: "campaign_id" });
-
-// Payments
-Campaign.hasMany(Payment, { foreignKey: "campaign_id" });
-Payment.belongsTo(Campaign, { foreignKey: "campaign_id" });
-User.hasMany(Payment, { foreignKey: "user_id" });
-Payment.belongsTo(User, { foreignKey: "user_id" });
-
-// Work Submissions
-CampaignUsers.hasMany(WorkSubmission, { foreignKey: "campaign_user_id" });
-WorkSubmission.belongsTo(CampaignUsers, { foreignKey: "campaign_user_id" });
-
-User.hasMany(WorkSubmission, {
-  foreignKey: "reviewed_by",
-  as: "reviewedSubmissions",
-});
-WorkSubmission.belongsTo(User, { foreignKey: "reviewed_by", as: "reviewer" });
-
-// Withdrawals
-User.hasMany(Withdrawal, { foreignKey: "user_id", as: "withdrawals" });
-Withdrawal.belongsTo(User, { foreignKey: "user_id", as: "user" });
-
-User.hasMany(Withdrawal, {
-  foreignKey: "reviewed_by",
-  as: "reviewedWithdrawals",
-});
-Withdrawal.belongsTo(User, { foreignKey: "reviewed_by", as: "reviewer" });
-
-// Transactions
-User.hasMany(Transaction, { foreignKey: "user_id", as: "transactions" });
-Transaction.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
 export {
   User,

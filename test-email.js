@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { sendOTPEmail } from "./src/utils/emailService.js";
+import EmailService from "./src/services/EmailService.js";
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ const testEmail = async () => {
 
   console.log(`Sending test OTP email to: ${testEmailAddress}`);
 
-  const result = await sendOTPEmail(testEmailAddress, testOTP, testName);
+  const result = await EmailService.sendOTPEmail(testEmailAddress, testName, testOTP);
 
   if (result) {
     console.log("✅ Email sent successfully!");

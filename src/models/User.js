@@ -1,8 +1,46 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const User = sequelize.define(
-  "User",
+class User extends Model {
+  static associate(models) {
+    // 1:1
+    this.hasOne(models.Student, { foreignKey: "user_id" });
+    
+    // 1:M
+    this.hasMany(models.Campaign, { foreignKey: "user_id" });
+    this.hasMany(models.ChatRoomParticipant, { foreignKey: "user_id" });
+    this.hasMany(models.ChatMessage, { foreignKey: "user_id" });
+    this.hasMany(models.Notification, { foreignKey: "user_id" });
+    this.hasMany(models.Payment, { foreignKey: "user_id" });
+    this.hasMany(models.Transaction, { foreignKey: "user_id", as: "transactions" });
+    this.hasMany(models.Withdrawal, { foreignKey: "user_id", as: "withdrawals" });
+    
+    // Reviews
+    this.hasMany(models.Review, { foreignKey: "creator_id" });
+    this.hasMany(models.Review, { foreignKey: "reviewee_user_id" });
+    
+    // Work Submissions (as reviewer)
+    this.hasMany(models.WorkSubmission, {
+      foreignKey: "reviewed_by",
+      as: "reviewedSubmissions",
+    });
+
+    // Withdrawals (as reviewer)
+    this.hasMany(models.Withdrawal, {
+      foreignKey: "reviewed_by",
+      as: "reviewedWithdrawals",
+    });
+
+    // M:M
+    this.belongsToMany(models.ChatRoom, {
+      through: models.ChatRoomParticipant,
+      foreignKey: "user_id",
+      otherKey: "chat_room_id",
+    });
+  }
+}
+
+User.init(
   {
     user_id: {
       type: DataTypes.INTEGER,
@@ -67,6 +105,8 @@ const User = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "User",
     tableName: "user",
     timestamps: false,
   }

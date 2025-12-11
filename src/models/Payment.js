@@ -1,8 +1,14 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const Payment = sequelize.define(
-  "Payment",
+class Payment extends Model {
+  static associate(models) {
+    this.belongsTo(models.Campaign, { foreignKey: "campaign_id" });
+    this.belongsTo(models.User, { foreignKey: "user_id" });
+  }
+}
+
+Payment.init(
   {
     payment_id: {
       type: DataTypes.INTEGER,
@@ -46,6 +52,8 @@ const Payment = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "Payment",
     tableName: "payment",
     timestamps: false,
   }

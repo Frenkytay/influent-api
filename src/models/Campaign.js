@@ -1,8 +1,20 @@
-import { DataTypes } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/db.js";
 
-const Campaign = sequelize.define(
-  "Campaign",
+class Campaign extends Model {
+  static associate(models) {
+    this.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
+    this.hasMany(models.CampaignUsers, { foreignKey: "campaign_id" });
+    this.hasMany(models.CampaignContentTypes, {
+      foreignKey: "campaign_id",
+      as: "contentTypes",
+    });
+    this.hasMany(models.Review, { foreignKey: "campaign_id" });
+    this.hasMany(models.Payment, { foreignKey: "campaign_id" });
+  }
+}
+
+Campaign.init(
   {
     campaign_id: {
       type: DataTypes.INTEGER,
@@ -120,6 +132,8 @@ const Campaign = sequelize.define(
     },
   },
   {
+    sequelize,
+    modelName: "Campaign",
     tableName: "campaign",
     timestamps: false,
   }
