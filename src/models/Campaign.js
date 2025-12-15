@@ -115,8 +115,37 @@ Campaign.init(
       comment: "Array of reference image paths",
     },
     status: {
-      type: DataTypes.ENUM("active", "inactive", "completed"),
-      defaultValue: "active",
+      type: DataTypes.ENUM(
+        "draft",
+        "admin_review",
+        "rejected", 
+        "pending_payment",
+        "canceled",
+        "active",
+        "completed"
+      ),
+      defaultValue: "draft",
+      comment: "Campaign workflow status",
+    },
+    admin_review_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: "When admin reviewed the campaign",
+    },
+    admin_reviewed_by: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: "Admin user_id who reviewed",
+    },
+    rejection_reason: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: "Reason for rejection if status is rejected",
+    },
+    payment_completed_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: "When payment was completed",
     },
     rating: {
       type: DataTypes.INTEGER,

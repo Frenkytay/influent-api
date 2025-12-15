@@ -9,7 +9,7 @@ class Notification extends Model {
 
 Notification.init(
   {
-    id: {
+    notification_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -17,24 +17,46 @@ Notification.init(
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-    },
-    type: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
+      comment: "User who receives this notification",
     },
     title: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      comment: "Short notification title",
     },
     message: {
       type: DataTypes.TEXT,
+      allowNull: false,
+      comment: "Full notification message",
+    },
+    type: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      comment: "Notification type: campaign, payment, system, violation, etc.",
+    },
+    reference_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: "Related entity ID (e.g., campaign_id)",
+    },
+    reference_type: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      comment: "Type of reference: campaign, payment, submission, etc.",
     },
     is_read: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      comment: "Whether notification has been read",
     },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+    },
+    read_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: "When notification was marked as read",
     },
   },
   {
