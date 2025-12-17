@@ -49,6 +49,7 @@ export const payStudentForCampaign = async (
     // Update student balance
     const balanceBefore = parseFloat(student.balance || 0);
     const paymentAmount = parseFloat(amount);
+    console.log("Payment amount:", paymentAmount);
     const balanceAfter = balanceBefore + paymentAmount;
 
     await student.update({ balance: balanceAfter }, { transaction: t });
@@ -110,14 +111,28 @@ export const payStudentForCampaign = async (
 /**
  * Distribute payments to all students in a campaign
  * @param {number} campaignId - The campaign ID
- * @param {number} amountPerStudent - Amount to pay each student
  */
-export const payAllStudentsInCampaign = async (
-  campaignId,
-  amountPerStudent
-) => {
+export const payAllStudentsInCampaign = async (campaignId) => {
   try {
-    // Get all students in the campaign
+    // 1. Fetch Campaign to get price_per_post
+    const campaign = await Campaign.findByPk(campaignId, {
+      attributes: ["campaign_id", "title", "price_per_post"],
+    });
+
+    if (!campaign) {
+      throw new Error("Campaign not found");
+    }
+
+    // 2. Determine payment amount
+    const amountPerStudent = parseFloat(campaign.price_per_post);
+
+    if (!amountPerStudent || amountPerStudent <= 0) {
+      throw new Error(
+        "Campaign has no valid price_per_post set. Cannot process automatic payments."
+      );
+    }
+
+    // 3. Get all students in the campaign
     const campaignUsers = await CampaignUsers.findAll({
       where: {
         campaign_id: campaignId,
@@ -167,6 +182,11 @@ export const payAllStudentsInCampaign = async (
           error: error.message,
         });
       }
+    }
+
+    // Check if at least one payment was successful
+    if (results.length > 0) {
+      await campaign.update({ status: "paid" });
     }
 
     return {

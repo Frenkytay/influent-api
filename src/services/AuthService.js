@@ -73,9 +73,9 @@ class AuthService {
       email,
       password: hashedPassword,
       role,
-      status: "pending",
-      otp,
-      otp_expires: otpExpires,
+      status: "inactive",
+      otp_code: otp,
+      otp_expires_at: otpExpires,
       otp_attempts: 0,
     });
 
@@ -118,12 +118,12 @@ class AuthService {
     }
 
     // Check OTP expiry
-    if (!user.otp_expires || new Date() > new Date(user.otp_expires)) {
+    if (!user.otp_expires_at || new Date() > new Date(user.otp_expires_at)) {
       throw new Error("OTP has expired. Please request a new one.");
     }
 
     // Verify OTP
-    if (user.otp !== otp) {
+    if (user.otp_code !== otp) {
       await this.userRepository.incrementOTPAttempts(user.user_id);
       throw new Error("Invalid OTP");
     }
@@ -131,8 +131,9 @@ class AuthService {
     // Update user status and clear OTP
     await this.userRepository.update(user.user_id, {
       status: "active",
-      otp: null,
-      otp_expires: null,
+      email_verified: true,
+      otp_code: null,
+      otp_expires_at: null,
       otp_attempts: 0,
     });
 
@@ -176,8 +177,8 @@ class AuthService {
     const otpExpires = new Date(Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000);
 
     await this.userRepository.update(user.user_id, {
-      otp,
-      otp_expires: otpExpires,
+      otp_code: otp,
+      otp_expires_at: otpExpires,
       otp_attempts: 0,
     });
 
@@ -209,7 +210,8 @@ class AuthService {
     }
 
     // Check if user is verified
-    if (user.status !== "active") {
+    console.log(user.email_verified);
+    if(user.email_verified == false){
       throw new Error("Please verify your email before logging in");
     }
 
@@ -246,8 +248,8 @@ class AuthService {
     const otpExpires = new Date(Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000);
 
     await this.userRepository.update(user.user_id, {
-      otp,
-      otp_expires: otpExpires,
+      otp_code: otp,
+      otp_expires_at: otpExpires,
       otp_attempts: 0,
     });
 
@@ -278,12 +280,12 @@ class AuthService {
     }
 
     // Check OTP expiry
-    if (!user.otp_expires || new Date() > new Date(user.otp_expires)) {
+    if (!user.otp_expires_at || new Date() > new Date(user.otp_expires_at)) {
       throw new Error("OTP has expired. Please request a new one.");
     }
 
     // Verify OTP
-    if (user.otp !== otp) {
+    if (user.otp_code !== otp) {
       await this.userRepository.incrementOTPAttempts(user.user_id);
       throw new Error("Invalid OTP");
     }
@@ -294,8 +296,8 @@ class AuthService {
     // Update password and clear OTP
     await this.userRepository.update(user.user_id, {
       password: hashedPassword,
-      otp: null,
-      otp_expires: null,
+      otp_code: null,
+      otp_expires_at: null,
       otp_attempts: 0,
     });
 

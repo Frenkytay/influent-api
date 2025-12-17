@@ -107,11 +107,34 @@ class PaymentDistributionService {
   /**
    * Pay all accepted students in a campaign with the same amount
    */
-  async payAllStudentsInCampaign(campaignId, amountPerStudent) {
+  /**
+   * Pay all accepted students in a campaign using campaign's price_per_post
+   */
+  async payAllStudentsInCampaign(campaignId) {
+    // 1. Fetch Campaign to get price_per_post
+    const campaign = await Campaign.findByPk(campaignId, {
+      attributes: ["campaign_id", "title", "price_per_post"],
+    });
+
+    if (!campaign) {
+      throw new Error("Campaign not found");
+    }
+
+    const amountPerStudent = parseFloat(campaign.price_per_post);
+
+    if (!amountPerStudent || amountPerStudent <= 0) {
+      throw new Error(
+        "Campaign has no valid price_per_post set. Cannot process automatic payments."
+      );
+    }
+
+    // 2. Fetch all accepted students
     const acceptedStudents = await CampaignUsers.findAll({
       where: {
         campaign_id: campaignId,
         application_status: "accepted",
+        // Optional: Exclude already paid users?
+        // payment_status: { [Op.ne]: 'paid' } // If you want to avoid double paying
       },
       include: [
         {
@@ -138,10 +161,12 @@ class PaymentDistributionService {
 
     for (const campaignUser of acceptedStudents) {
       try {
+        // Skip if already paid? (Logic depends on your requirements, assuming Pay All pays everyone found)
+        
         const result = await this.payStudentForCampaign(
           campaignUser.id,
           amountPerStudent,
-          `Batch payment for campaign`
+          `Batch payment for campaign: ${campaign.title}`
         );
         results.push({
           student_id: campaignUser.user.user_id,
@@ -165,7 +190,7 @@ class PaymentDistributionService {
       success: true,
       paid_count: paidCount,
       failed_count: failedCount,
-      total_amount: paidCount * parseFloat(amountPerStudent),
+      total_amount: paidCount * amountPerStudent,
       results,
     };
   }

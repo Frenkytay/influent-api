@@ -6,13 +6,18 @@ class CampaignUsersService extends BaseService {
     super(CampaignUsersRepository);
   }
 
-  async getAll(filters = {}, options = {}) {
+  async getAll(filters = {}, options = {}, requestUser = null) {
     const { campaign_id, student_id, application_status } = filters;
     
     const queryFilters = {};
     if (campaign_id) queryFilters.campaign_id = campaign_id;
     if (student_id) queryFilters.student_id = student_id;
     if (application_status) queryFilters.application_status = application_status;
+
+    // Filter by student_id if user is student
+    if (requestUser && requestUser.role === "student") {
+      queryFilters.student_id = requestUser.id;
+    }
 
     const where = this.repository.buildWhereClause(queryFilters);
     const order = this.repository.buildOrderClause(options.sort, options.order);

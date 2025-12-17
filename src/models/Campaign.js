@@ -115,8 +115,8 @@ Campaign.init(
       comment: "Array of reference image paths",
     },
     status: {
-      type: DataTypes.ENUM("active", "inactive", "completed"),
-      defaultValue: "active",
+      type: DataTypes.ENUM('draft','admin_review','pending_payment','cancelled','active','completed' , 'paid'),
+      defaultValue: "admin_review",
     },
     rating: {
       type: DataTypes.INTEGER,

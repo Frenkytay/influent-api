@@ -60,7 +60,7 @@ class AuthController extends BaseController {
     }
 
     const result = await this.service.login(email, password);
-    this.sendSuccess(res, { data: result });
+    this.sendSuccess(res,  result );
   });
 
   /**
