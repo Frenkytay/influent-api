@@ -23,7 +23,7 @@ class CampaignController extends BaseController {
       req.user // Pass authenticated user for filtering
     );
 
-    this.sendSuccess(res, { data: campaigns });
+    this.sendSuccess(res, campaigns);
   });
 
   /**
@@ -48,7 +48,7 @@ class CampaignController extends BaseController {
       order,
     });
 
-    this.sendSuccess(res, { data: campaigns });
+    this.sendSuccess(res, campaigns);
   });
 
   /**

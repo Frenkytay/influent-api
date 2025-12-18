@@ -74,7 +74,7 @@ User.init(
     },
     status: {
       type: DataTypes.ENUM("active", "inactive", "suspended"),
-      defaultValue: "active",
+      defaultValue: "inactive",
     },
     balance: {
       type: DataTypes.DECIMAL(12, 2),

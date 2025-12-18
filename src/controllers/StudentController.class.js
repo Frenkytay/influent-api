@@ -7,6 +7,16 @@ class StudentController extends BaseController {
   }
 
   getAll = this.asyncHandler(async (req, res) => {
+    // If the logged-in user is a student, only return their own data
+    if (req.user && req.user.role === 'student') {
+      const student = await this.service.getByUserId(req.user.id);
+      if (!student) {
+        return this.sendError(res, "Student profile not found", 404);
+      }
+      return this.sendSuccess(res, student);
+    }
+
+    // Otherwise (Admin/Business), return list of students
     const { university, major, year, gpa, status, sort, order } = req.query;
     
     const students = await this.service.getAll(
@@ -23,7 +33,26 @@ class StudentController extends BaseController {
   });
 
   create = this.asyncHandler(async (req, res) => {
-    const student = await this.service.create(req.body);
+    // 1. Get user ID from authenticated token
+    const userId = req.user?.id;
+    if (!userId) {
+      return this.sendError(res, "Authentication required", 401);
+    }
+
+    // 2. Check if student profile already exists
+    const existingStudent = await this.service.getByUserId(userId);
+    if (existingStudent) {
+      return this.sendError(res, "Student profile already exists", 400);
+    }
+
+    // 3. Create student with user_id forced
+    const studentData = {
+      ...req.body,
+      user_id: userId,
+      status: true // Default active
+    };
+
+    const student = await this.service.create(studentData);
     this.sendSuccess(res, student, 201);
   });
 

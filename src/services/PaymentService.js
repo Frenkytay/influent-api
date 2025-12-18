@@ -104,16 +104,23 @@ class PaymentService extends BaseService {
     if (!payment) {
       throw new Error(`Payment not found for order_id: ${orderId}`);
     }
-
+    console.log("Payment found:", statusResponse);
     // Update payment
     await payment.update({
-      status: statusResponse.transaction_status,
+      status: statusResponse.transaction_status== "settlement"? "active": "cancelled",
       payment_type: statusResponse.payment_type,
       transaction_time: statusResponse.transaction_time
         ? new Date(statusResponse.transaction_time)
         : null,
       raw_response: statusResponse,
     });
+
+    if (statusResponse.transaction_status === "settlement") {
+      const campaign = await Campaign.findByPk(payment.campaign_id);
+      if (campaign) {
+        await campaign.update({ status: "active" });
+      }
+    }
 
     return payment;
   }
@@ -197,6 +204,13 @@ class PaymentService extends BaseService {
         : payment.transaction_time,
       raw_response: statusResponse,
     });
+
+    if (newStatus === "success") {
+      const campaign = await Campaign.findByPk(payment.campaign_id);
+      if (campaign) {
+        await campaign.update({ status: "active" });
+      }
+    }
 
     return {
       payment,

@@ -25,14 +25,10 @@ class CampaignPaymentService {
   }
 
   async payAllStudents(paymentData) {
-    const { campaign_id, amount_per_student } = paymentData;
+    const { campaign_id } = paymentData;
 
-    if (!campaign_id || !amount_per_student) {
-      throw new Error("campaign_id and amount_per_student are required");
-    }
-
-    if (amount_per_student <= 0) {
-      throw new Error("Amount must be greater than 0");
+    if (!campaign_id) {
+      throw new Error("campaign_id is required");
     }
 
     const campaign = await this.campaignRepo.findById(campaign_id);
@@ -40,7 +36,7 @@ class CampaignPaymentService {
       throw new Error("Campaign not found");
     }
 
-    const result = await payAllStudentsInCampaign(campaign_id, amount_per_student);
+    const result = await payAllStudentsInCampaign(campaign_id);
 
     return {
       ...result,

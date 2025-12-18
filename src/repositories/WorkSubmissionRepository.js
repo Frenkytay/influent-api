@@ -32,6 +32,7 @@ class WorkSubmissionRepository extends BaseRepository {
             },
             {
               model: Campaign,
+              as: "campaign",
               attributes: ["campaign_id", "title", "banner_image"],
             },
           ],
@@ -54,6 +55,7 @@ class WorkSubmissionRepository extends BaseRepository {
           include: [
             {
               model: Campaign,
+              as: "campaign",
               attributes: ["campaign_id", "title", "banner_image", "status"],
             },
           ],
@@ -74,6 +76,7 @@ class WorkSubmissionRepository extends BaseRepository {
           include: [
             {
               model: Campaign,
+              as: "campaign",
               attributes: ["campaign_id", "title", "user_id", "banner_image"],
             },
             {

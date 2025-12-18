@@ -17,7 +17,7 @@ class PaymentController extends BaseController {
     }
 
     const result = await this.service.createPayment(campaign_id, user_id);
-    this.sendSuccess(res, result, "Payment created successfully", 201);
+    this.sendSuccess(res, result, 201);
   });
 
   /**
@@ -62,6 +62,7 @@ class PaymentController extends BaseController {
 
     const redirectUrl = baseUrls[result.redirect] || baseUrls.pending;
     const finalOrderId = result.payment?.order_id || result.orderId || lookupOrderId;
+    
     const status = result.status || "pending";
 
     res.redirect(

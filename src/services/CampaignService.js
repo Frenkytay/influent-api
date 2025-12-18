@@ -19,9 +19,17 @@ class CampaignService extends BaseService {
     const where = {};
     if (status) where.status = status;
     
-    // If requester is not admin, force filter to their own campaigns
+    // If requester is not admin
     if (requestUser && requestUser.role !== "admin") {
-      where.user_id = requestUser.id;
+      if (requestUser.role === "student") {
+        // Students see ALL active campaigns, sorted by newest
+        where.status = "active";
+        options.sort = "created_at";
+        options.order = "DESC";
+      } else {
+        // Other roles (e.g. brands) only see their own campaigns
+        where.user_id = requestUser.id;
+      }
     } else if (user_id) {
       where.user_id = user_id;
     }

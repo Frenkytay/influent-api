@@ -11,7 +11,8 @@ class CampaignUsersController extends BaseController {
     
     const items = await this.service.getAll(
       { campaign_id, student_id, application_status },
-      { sort, order }
+      { sort, order },
+      req.user
     );
     
     this.sendSuccess(res, items);

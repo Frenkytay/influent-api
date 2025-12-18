@@ -11,7 +11,7 @@ class WorkSubmissionController extends BaseController {
    */
   createSubmission = this.asyncHandler(async (req, res) => {
     const submission = await this.service.createSubmission(req.body);
-    this.sendSuccess(res, submission, "Work submission created successfully", 201);
+    this.sendSuccess(res, submission, 201);
   });
 
   /**
@@ -26,7 +26,7 @@ class WorkSubmissionController extends BaseController {
       { status }
     );
     
-    this.sendSuccess(res, submissions, "Submissions retrieved successfully");
+    this.sendSuccess(res, submissions);
   });
 
   /**
@@ -41,7 +41,7 @@ class WorkSubmissionController extends BaseController {
       { status }
     );
     
-    this.sendSuccess(res, submissions, "Submissions retrieved successfully");
+    this.sendSuccess(res, submissions);
   });
 
   /**
@@ -55,7 +55,7 @@ class WorkSubmissionController extends BaseController {
       return this.sendError(res, "Submission not found", 404);
     }
     
-    this.sendSuccess(res, submission, "Submission retrieved successfully");
+    this.sendSuccess(res, submission);
   });
 
   /**
@@ -69,7 +69,7 @@ class WorkSubmissionController extends BaseController {
       return this.sendError(res, "Submission not found", 404);
     }
     
-    this.sendSuccess(res, submission, "Submission updated successfully");
+    this.sendSuccess(res, submission);
   });
 
   /**
@@ -90,7 +90,7 @@ class WorkSubmissionController extends BaseController {
       return this.sendError(res, "Submission not found", 404);
     }
     
-    this.sendSuccess(res, submission, "Submission approved successfully");
+    this.sendSuccess(res, submission);
   });
 
   /**
@@ -98,24 +98,24 @@ class WorkSubmissionController extends BaseController {
    */
   rejectSubmission = this.asyncHandler(async (req, res) => {
     const { submission_id } = req.params;
-    const { review_feedback } = req.body;
+    const { review_notes } = req.body;
     const reviewerId = req.user?.id;
     
-    if (!review_feedback) {
+    if (!review_notes) {
       return this.sendError(res, "Rejection feedback is required", 400);
     }
     
     const submission = await this.service.rejectSubmission(
       submission_id,
       reviewerId,
-      review_feedback
+      review_notes
     );
     
     if (!submission) {
       return this.sendError(res, "Submission not found", 404);
     }
     
-    this.sendSuccess(res, submission, "Submission rejected");
+    this.sendSuccess(res, submission);
   });
 
   /**
@@ -140,7 +140,7 @@ class WorkSubmissionController extends BaseController {
       return this.sendError(res, "Submission not found", 404);
     }
     
-    this.sendSuccess(res, submission, "Revision requested");
+    this.sendSuccess(res, submission);
   });
 
   /**
@@ -154,7 +154,7 @@ class WorkSubmissionController extends BaseController {
       return this.sendError(res, "Submission not found", 404);
     }
     
-    this.sendSuccess(res, submission, "Submission resubmitted successfully");
+    this.sendSuccess(res, submission);
   });
 
   /**
@@ -163,7 +163,7 @@ class WorkSubmissionController extends BaseController {
   deleteSubmission = this.asyncHandler(async (req, res) => {
     const { submission_id } = req.params;
     await this.service.deleteSubmission(submission_id);
-    this.sendSuccess(res, null, "Submission deleted successfully");
+    this.sendSuccess(res, null);
   });
 }
 
