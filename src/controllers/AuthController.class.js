@@ -102,7 +102,27 @@ class AuthController extends BaseController {
       return this.sendError(res, "Unauthorized", 401);
     }
 
-    this.sendSuccess(res, { user: req.user });
+    const result = await this.service.getMe(req.user.id);
+    this.sendSuccess(res, { user: result });
+  });
+
+  /**
+   * Change password
+   * POST /api/v1/auth/change-password
+   */
+  changePassword = this.asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return this.sendError(res, "Old password and new password are required", 400);
+    }
+
+    if (!req.user) {
+      return this.sendError(res, "Unauthorized", 401);
+    }
+
+    const result = await this.service.changePassword(req.user.id, oldPassword, newPassword);
+    this.sendSuccess(res, result);
   });
 }
 

@@ -11,7 +11,8 @@ class StudentController extends BaseController {
     if (req.user && req.user.role === 'student') {
       const student = await this.service.getByUserId(req.user.id);
       if (!student) {
-        return this.sendError(res, "Student profile not found", 404);
+        // Return null/empty if profile not created yet, instead of 404 error
+        return this.sendSuccess(res, null);
       }
       return this.sendSuccess(res, student);
     }
@@ -34,7 +35,8 @@ class StudentController extends BaseController {
 
   create = this.asyncHandler(async (req, res) => {
     // 1. Get user ID from authenticated token
-    const userId = req.user?.id;
+    const userId = req.body.user_id || req.user.id;
+
     if (!userId) {
       return this.sendError(res, "Authentication required", 401);
     }

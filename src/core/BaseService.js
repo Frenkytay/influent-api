@@ -18,9 +18,9 @@ class BaseService {
     );
 
     return await this.repository.findAll({
+      ...options,
       where,
       order,
-      ...options,
     });
   }
 

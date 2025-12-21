@@ -38,6 +38,22 @@ class PaymentRepository extends BaseRepository {
   }
 
   /**
+   * Find by Campaign Owner (User ID via Campaign)
+   */
+  async findByCampaignOwner(userId) {
+    return await this.findAll({
+      include: [
+        {
+          model: Campaign,
+          where: { user_id: userId },
+          attributes: ["campaign_id", "title", "user_id"],
+        },
+      ],
+      order: [["created_at", "DESC"]],
+    });
+  }
+
+  /**
    * Find by status
    */
   async findByStatus(status) {

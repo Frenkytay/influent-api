@@ -1,7 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserRepository from "../repositories/UserRepository.js";
+import StudentRepository from "../repositories/StudentRepository.js";
 import EmailService from "./EmailService.js";
+import AppError from "../core/AppError.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "please_change_me_in_production";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "5h";
@@ -44,20 +46,21 @@ class AuthService {
 
     // Validate required fields
     if (!name || !email || !password || !role) {
-      throw new Error("name, email, password and role are required");
+      throw new AppError("name, email, password and role are required", 400);
     }
 
     // Validate student email domain
     if (role === "student" && !email.toLowerCase().endsWith(".ac.id")) {
-      throw new Error(
-        "Student accounts must use an academic email ending with .ac.id"
+      throw new AppError(
+        "Student accounts must use an academic email ending with .ac.id",
+        400
       );
     }
 
     // Check if user already exists
     const existing = await this.userRepository.findByEmail(email);
     if (existing) {
-      throw new Error("User with this email already exists");
+      throw new AppError("User with this email already exists", 409);
     }
 
     // Hash password
@@ -105,27 +108,27 @@ class AuthService {
   async verifyOTP(email, otp) {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new Error("User not found");
+      throw new AppError("User not found", 404);
     }
 
     if (user.status === "active") {
-      throw new Error("User already verified");
+      throw new AppError("User already verified", 400);
     }
 
     // Check OTP attempts
     if (user.otp_attempts >= MAX_OTP_ATTEMPTS) {
-      throw new Error("Maximum OTP attempts exceeded. Please request a new OTP.");
+      throw new AppError("Maximum OTP attempts exceeded. Please request a new OTP.", 400);
     }
 
     // Check OTP expiry
     if (!user.otp_expires_at || new Date() > new Date(user.otp_expires_at)) {
-      throw new Error("OTP has expired. Please request a new one.");
+      throw new AppError("OTP has expired. Please request a new one.", 400);
     }
 
     // Verify OTP
     if (user.otp_code !== otp) {
       await this.userRepository.incrementOTPAttempts(user.user_id);
-      throw new Error("Invalid OTP");
+      throw new AppError("Invalid OTP", 400);
     }
 
     // Update user status and clear OTP
@@ -165,11 +168,11 @@ class AuthService {
   async resendOTP(email) {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new Error("User not found");
+      throw new AppError("User not found", 404);
     }
 
     if (user.status === "active") {
-      throw new Error("User already verified");
+      throw new AppError("User already verified", 400);
     }
 
     // Generate new OTP
@@ -195,24 +198,24 @@ class AuthService {
    */
   async login(email, password) {
     if (!email || !password) {
-      throw new Error("Email and password are required");
+      throw new AppError("Email and password are required", 400);
     }
 
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new Error("Invalid credentials");
+      throw new AppError("Invalid credentials", 401);
     }
 
     // Verify password
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      throw new Error("Invalid credentials");
+      throw new AppError("Invalid credentials", 401);
     }
 
     // Check if user is verified
     console.log(user.email_verified);
     if(user.email_verified == false){
-      throw new Error("Please verify your email before logging in");
+      throw new AppError("Please verify your email before logging in", 403);
     }
 
     // Generate token
@@ -237,7 +240,7 @@ class AuthService {
   async requestPasswordReset(email) {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      // Don't reveal if user exists
+      // Don't reveal if user exists - security best practice
       return {
         message: "If the email exists, a password reset link has been sent",
       };
@@ -271,23 +274,23 @@ class AuthService {
   async resetPassword(email, otp, newPassword) {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new Error("Invalid request");
+      throw new AppError("Invalid request", 400);
     }
 
     // Check OTP attempts
     if (user.otp_attempts >= MAX_OTP_ATTEMPTS) {
-      throw new Error("Maximum OTP attempts exceeded. Please request a new OTP.");
+      throw new AppError("Maximum OTP attempts exceeded. Please request a new OTP.", 400);
     }
 
     // Check OTP expiry
     if (!user.otp_expires_at || new Date() > new Date(user.otp_expires_at)) {
-      throw new Error("OTP has expired. Please request a new one.");
+      throw new AppError("OTP has expired. Please request a new one.", 400);
     }
 
     // Verify OTP
     if (user.otp_code !== otp) {
       await this.userRepository.incrementOTPAttempts(user.user_id);
-      throw new Error("Invalid OTP");
+      throw new AppError("Invalid OTP", 400);
     }
 
     // Hash new password
@@ -303,6 +306,58 @@ class AuthService {
 
     return {
       message: "Password reset successfully",
+    };
+  }
+
+  /**
+   * Get current user
+   */
+  async getMe(userId) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    let studentData = null;
+    if (user.role === "student") {
+      studentData = await StudentRepository.findByUserId(userId);
+    }
+
+    return {
+      user_id: user.user_id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      profile_image: user.profile_image,
+      student: studentData,
+    };
+  }
+
+  /**
+   * Change password for logged in user
+   */
+  async changePassword(userId, oldPassword, newPassword) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    // Verify old password
+    const isValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isValid) {
+      throw new AppError("Invalid old password", 401);
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.userRepository.update(userId, {
+      password: hashedPassword,
+    });
+
+    return {
+      message: "Password changed successfully",
     };
   }
 

@@ -34,7 +34,6 @@ Student.init(
     },
     instagram: {
       type: DataTypes.STRING,
-      comment: "Instagram username",
     },
     updated_at: {
       type: DataTypes.DATE,

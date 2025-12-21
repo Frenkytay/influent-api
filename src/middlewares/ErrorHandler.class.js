@@ -115,11 +115,14 @@ class ErrorHandler {
    */
   handleGenericError(err, res) {
     const statusCode = err.status || err.statusCode || 500;
+    // Always use the error message if provided, don't hide it behind "Internal server error"
+    // unless it's a true codebase crash we want to hide in production.
+    // But user asked to "just tell the error".
     const message = err.message || "Internal server error";
 
     return res.status(statusCode).json({
       success: false,
-      error: statusCode === 500 ? "Internal server error" : message,
+      error: message, 
       ...(process.env.NODE_ENV === "development" && {
         stack: err.stack,
         details: err,

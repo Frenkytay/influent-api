@@ -10,6 +10,9 @@ router.use(AuthMiddleware.verifyJWT);
 // Create submission
 router.post("/", WorkSubmissionController.createSubmission);
 
+// Get rejected submissions (Admin) - Must come before other GETs
+router.get("/rejected", WorkSubmissionController.getRejectedSubmissions);
+
 // Get submissions by campaign
 router.get("/campaign/:campaign_id", WorkSubmissionController.getCampaignSubmissions);
 

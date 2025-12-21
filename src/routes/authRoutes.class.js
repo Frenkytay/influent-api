@@ -13,6 +13,7 @@ router.post("/forgot-password", AuthController.forgotPassword);
 router.post("/reset-password", AuthController.resetPassword);
 
 // Protected routes (require authentication)
+router.post("/change-password", AuthMiddleware.verifyJWT, AuthController.changePassword);
 router.get("/me", AuthMiddleware.verifyJWT, AuthController.getMe);
 
 export default router;

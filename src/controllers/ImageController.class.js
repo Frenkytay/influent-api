@@ -52,7 +52,7 @@ class ImageController extends BaseController {
       return this.sendError(res, "Campaign not found", 404);
     }
 
-    const bannerPath = `/uploads/${req.file.filename}`;
+    const bannerPath = `${req.file.filename}`;
     await campaign.update({ banner_image: bannerPath });
 
     this.sendSuccess(res, {
@@ -79,7 +79,7 @@ class ImageController extends BaseController {
       return this.sendError(res, "Campaign not found", 404);
     }
 
-    const filePaths = req.files.map((file) => `/uploads/${file.filename}`);
+    const filePaths = req.files.map((file) => `${file.filename}`);
     
     // In a real app, you might want to merge with existing or replace. 
     // The legacy code replaced it.
@@ -110,7 +110,7 @@ class ImageController extends BaseController {
         return this.sendError(res, "User not found", 404);
     }
 
-    const profilePath = `/uploads/${req.file.filename}`;
+    const profilePath = `${req.file.filename}`;
     await user.update({ profile_image: profilePath });
 
     this.sendSuccess(res, {

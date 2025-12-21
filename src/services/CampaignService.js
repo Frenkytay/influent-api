@@ -81,8 +81,7 @@ class CampaignService extends BaseService {
     // Set user_id from authenticated user
     return await this.repository.create({
       ...campaignData,
-      user_id: userId,
-      status: "active", // Default status
+      user_id: userId
     });
   }
 

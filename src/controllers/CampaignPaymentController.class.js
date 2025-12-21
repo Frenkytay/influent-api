@@ -30,6 +30,14 @@ class CampaignPaymentController extends BaseController {
       ...result,
     });
   });
+
+  getCompanyHistory = this.asyncHandler(async (req, res) => {
+    if (!req.user || !req.user.id) {
+      return this.sendError(res, "Unauthorized", 401);
+    }
+    const result = await this.service.getCompanyHistory(req.user.id);
+    this.sendSuccess(res, result);
+  });
 }
 
 export default new CampaignPaymentController();

@@ -243,7 +243,9 @@ class PaymentService extends BaseService {
    * Get payments by user
    */
   async getPaymentsByUser(userId) {
-    return await this.repository.findByUserId(userId);
+    // We now use findByCampaignOwner to get payments linked to the user's campaigns
+    // This covers cases where payment.user_id might be null but the campaign belongs to the user
+    return await this.repository.findByCampaignOwner(userId);
   }
 }
 

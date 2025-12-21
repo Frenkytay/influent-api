@@ -30,6 +30,18 @@ class WorkSubmissionController extends BaseController {
   });
 
   /**
+   * Get all rejected submissions (Admin only)
+   */
+  getRejectedSubmissions = this.asyncHandler(async (req, res) => {
+    if (req.user.role !== "admin") {
+      return this.sendError(res, "Access denied", 403);
+    }
+
+    const submissions = await this.service.getAllRejected();
+    this.sendSuccess(res, submissions);
+  });
+
+  /**
    * Get student submissions
    */
   getStudentSubmissions = this.asyncHandler(async (req, res) => {

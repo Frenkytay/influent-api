@@ -87,6 +87,17 @@ class PaymentController extends BaseController {
     const payments = await this.service.getPaymentsByUser(user_id);
     this.sendSuccess(res, payments);
   });
+
+  /**
+   * Get my payments (authenticated user)
+   */
+  getMyPayments = this.asyncHandler(async (req, res) => {
+    if (!req.user || !req.user.id) {
+      return this.sendError(res, "Unauthorized", 401);
+    }
+    const payments = await this.service.getPaymentsByUser(req.user.id);
+    this.sendSuccess(res, payments);
+  });
 }
 
 export default new PaymentController();

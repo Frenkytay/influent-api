@@ -45,6 +45,22 @@ class WorkSubmissionService extends BaseService {
   }
 
   /**
+   * Get all rejected submissions
+   */
+  async getAllRejected() {
+    return await this.repository.findAll({
+      where: { status: "rejected" },
+      order: [["updated_at", "DESC"]],
+      include: [
+        {
+          model: this.campaignUsersRepo.model,
+          include: ["campaign", "user"],
+        },
+      ],
+    });
+  }
+
+  /**
    * Get submissions by student
    */
   async getStudentSubmissions(studentId, filters = {}) {

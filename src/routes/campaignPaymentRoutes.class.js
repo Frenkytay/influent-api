@@ -8,5 +8,6 @@ const router = express.Router();
 router.post("/pay-student", AuthMiddleware.verifyJWT, CampaignPaymentController.paySingleStudent);
 router.post("/pay-all", AuthMiddleware.verifyJWT, CampaignPaymentController.payAllStudents);
 router.post("/pay-custom", AuthMiddleware.verifyJWT, CampaignPaymentController.payCustomAmounts);
+router.get("/history", AuthMiddleware.verifyJWT, CampaignPaymentController.getCompanyHistory);
 
 export default router;
