@@ -67,6 +67,22 @@ class StudentController extends BaseController {
     await this.service.delete(req.params.id);
     this.sendSuccess(res, { message: "Student deleted successfully" });
   });
+
+  /**
+   * Connect Instagram
+   * POST /api/v1/students/instagram/connect
+   */
+  connectInstagram = this.asyncHandler(async (req, res) => {
+    const { code } = req.body;
+    const userId = req.user.id;
+
+    if (!code) {
+      return this.sendError(res, "Authorization code is required", 400);
+    }
+
+    const result = await this.service.connectInstagram(userId, code);
+    this.sendSuccess(res, result);
+  });
 }
 
 export default new StudentController();

@@ -124,6 +124,30 @@ class AuthController extends BaseController {
     const result = await this.service.changePassword(req.user.id, oldPassword, newPassword);
     this.sendSuccess(res, result);
   });
+
+  /**
+   * Get Instagram Auth URL
+   * GET /api/v1/auth/instagram/url
+   */
+  getInstagramAuthUrl = this.asyncHandler(async (req, res) => {
+    const url = this.service.getInstagramAuthUrl();
+    this.sendSuccess(res, { url });
+  });
+
+  /**
+   * Login with Instagram
+   * POST /api/v1/auth/instagram/login
+   */
+  instagramLogin = this.asyncHandler(async (req, res) => {
+    const { code } = req.body;
+
+    if (!code) {
+      return this.sendError(res, "Authorization code is required", 400);
+    }
+
+    const result = await this.service.instagramLogin(code);
+    this.sendSuccess(res, result);
+  });
 }
 
 export default new AuthController();

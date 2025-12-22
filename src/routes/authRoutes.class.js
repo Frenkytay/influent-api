@@ -12,6 +12,10 @@ router.post("/resend-otp", AuthController.resendOTP);
 router.post("/forgot-password", AuthController.forgotPassword);
 router.post("/reset-password", AuthController.resetPassword);
 
+// Instagram Auth
+router.get("/instagram/url", AuthController.getInstagramAuthUrl);
+router.post("/instagram/login", AuthController.instagramLogin);
+
 // Protected routes (require authentication)
 router.post("/change-password", AuthMiddleware.verifyJWT, AuthController.changePassword);
 router.get("/me", AuthMiddleware.verifyJWT, AuthController.getMe);

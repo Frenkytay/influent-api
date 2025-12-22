@@ -35,6 +35,20 @@ Student.init(
     instagram: {
       type: DataTypes.STRING,
     },
+    instagram_id: {
+      type: DataTypes.STRING,
+      unique: true,
+    },
+    facebook_access_token: {
+      type: DataTypes.TEXT,
+    },
+    instagram_followers_count: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    instagram_username: {
+      type: DataTypes.STRING,
+    },
     updated_at: {
       type: DataTypes.DATE,
     },

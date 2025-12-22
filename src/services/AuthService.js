@@ -4,6 +4,7 @@ import UserRepository from "../repositories/UserRepository.js";
 import StudentRepository from "../repositories/StudentRepository.js";
 import EmailService from "./EmailService.js";
 import AppError from "../core/AppError.js";
+import InstagramService from "./InstagramService.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "please_change_me_in_production";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "5h";
@@ -370,6 +371,72 @@ class AuthService {
     } catch (error) {
       throw new Error("Invalid or expired token");
     }
+  }
+
+  /**
+   * Get Instagram Auth URL
+   */
+  getInstagramAuthUrl() {
+    return InstagramService.getAuthUrl();
+  }
+
+  /**
+   * Login with Instagram
+   */
+  async instagramLogin(code) {
+    // 1. Get Access Token and Details from Instagram
+    const accessToken = await InstagramService.getAccessToken(code);
+    const igDetails = await InstagramService.getInstagramDetails(accessToken);
+
+    // 2. Find Student with this Instagram ID
+    const student = await StudentRepository.findOne({
+      where: { instagram_id: igDetails.instagram_id },
+    });
+
+    if (!student) {
+      throw new AppError(
+        "No account linked with this Instagram connection. Please login to your account and link Instagram first.",
+        404
+      );
+    }
+
+    // 3. Update Student Data (followers, username, token)
+    await StudentRepository.update(student.user_id, {
+      instagram_username: igDetails.username,
+      instagram_followers_count: igDetails.followers_count,
+      facebook_access_token: accessToken,
+    });
+
+    // 4. Get User to generate token
+    const user = await this.userRepository.findById(student.user_id);
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+     if (user.status !== "active") {
+      throw new AppError("User account is not active", 403);
+    }
+
+    // 5. Generate Token
+    const token = this.signAuthToken(user);
+
+    return {
+      token,
+      user: {
+        user_id: user.user_id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        profile_image: user.profile_image,
+        student: {
+           ...student.toJSON(),
+           instagram_username: igDetails.username,
+           instagram_followers_count: igDetails.followers_count
+        }
+      },
+    };
   }
 }
 

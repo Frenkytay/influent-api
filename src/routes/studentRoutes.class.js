@@ -9,5 +9,6 @@ router.get("/:id", AuthMiddleware.verifyJWT, StudentController.getById);
 router.post("/", AuthMiddleware.verifyJWT, StudentController.create);
 router.put("/:id", AuthMiddleware.verifyJWT, StudentController.update);
 router.delete("/:id", AuthMiddleware.verifyJWT, StudentController.delete);
+router.post("/instagram/connect", AuthMiddleware.verifyJWT, StudentController.connectInstagram);
 
 export default router;
