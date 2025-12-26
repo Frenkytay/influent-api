@@ -23,6 +23,7 @@ class InstagramService {
       "pages_read_engagement",
     ].join(",");
 
+    
     return `https://www.facebook.com/v18.0/dialog/oauth?client_id=${this.appId}&redirect_uri=${this.redirectUri}&scope=${scopes}&response_type=code`;
   }
 
