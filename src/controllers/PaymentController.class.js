@@ -59,7 +59,6 @@ class PaymentController extends BaseController {
       failed: process.env.FRONTEND_FAILURE_URL || process.env.FRONTEND_URL || "/",
       pending: process.env.FRONTEND_PENDING_URL || process.env.FRONTEND_URL || "/",
     };
-    console.log(baseUrls);
 
     const redirectUrl = baseUrls[result.redirect] || baseUrls.pending;
     const finalOrderId = result.payment?.order_id || result.orderId || lookupOrderId;

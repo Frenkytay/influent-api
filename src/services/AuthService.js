@@ -61,6 +61,9 @@ class AuthService {
     // Check if user already exists
     const existing = await this.userRepository.findByEmail(email);
     if (existing) {
+      if (!existing.email_verified) {
+        throw new AppError("Account exists but is not verified", 403);
+      }
       throw new AppError("User with this email already exists", 409);
     }
 
@@ -214,8 +217,8 @@ class AuthService {
     }
 
     // Check if user is verified
-    console.log(user.email_verified);
-    if(user.email_verified == false){
+    // Check if user is verified
+    if(!user.email_verified){
       throw new AppError("Please verify your email before logging in", 403);
     }
 
