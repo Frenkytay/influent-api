@@ -114,6 +114,10 @@ Campaign.init(
       type: DataTypes.JSON,
       comment: "Array of reference image paths",
     },
+    content_types: {
+      type: DataTypes.JSON,
+      comment: "JSON array of content types and counts",
+    },
     status: {
       type: DataTypes.ENUM('draft','admin_review','pending_payment','cancelled','active','completed' , 'paid'),
       defaultValue: "admin_review",

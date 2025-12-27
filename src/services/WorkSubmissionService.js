@@ -30,6 +30,19 @@ class WorkSubmissionService extends BaseService {
       status: data.status || "pending",
     };
 
+    // Handle submissionContent -> submission_content mapping
+    if (data.submissionContent) {
+      let submissionContent = data.submissionContent;
+      if (typeof submissionContent === "string") {
+        try {
+          submissionContent = JSON.parse(submissionContent);
+        } catch (e) {
+          // Keep as string if parsing fails
+        }
+      }
+      submissionData.submission_content = submissionContent;
+    }
+
     return await this.repository.create(submissionData);
   }
 
@@ -95,11 +108,23 @@ class WorkSubmissionService extends BaseService {
       "hashtags",
       "platform",
       "submission_notes",
+      "submission_content"
     ];
 
     const updateData = {};
     allowedFields.forEach((field) => {
-      if (data[field] !== undefined) {
+      // Map submissionContent to submission_content for update
+      if (field === "submission_content" && data.submissionContent !== undefined) {
+         let submissionContent = data.submissionContent;
+         if (typeof submissionContent === "string") {
+            try {
+              submissionContent = JSON.parse(submissionContent);
+            } catch (e) {
+              // Keep as string if parsing fails
+            }
+         }
+         updateData.submission_content = submissionContent;
+      } else if (data[field] !== undefined) {
         updateData[field] = data[field];
       }
     });

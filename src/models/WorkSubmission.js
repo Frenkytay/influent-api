@@ -38,6 +38,10 @@ WorkSubmission.init(
       type: DataTypes.JSON,
       comment: "Array of uploaded file paths/URLs",
     },
+    submission_content: {
+      type: DataTypes.JSON,
+      comment: "Structured submission content matching campaign requirements",
+    },
     caption: {
       type: DataTypes.TEXT,
       comment: "Caption/description for the content",

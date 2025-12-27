@@ -3,6 +3,7 @@ import Campaign from "../models/Campaign.js";
 import CampaignUsers from "../models/CampaignUsers.js";
 import Transaction from "../models/Transaction.js";
 import Notification from "../models/Notification.js";
+import WorkSubmission from "../models/WorkSubmission.js";
 import sequelize from "../config/db.js";
 
 /**
@@ -132,7 +133,7 @@ export const payAllStudentsInCampaign = async (campaignId) => {
       );
     }
 
-    // 3. Get all students in the campaign
+    // 3. Get all students in the campaign who are accepted AND have approved work
     const campaignUsers = await CampaignUsers.findAll({
       where: {
         campaign_id: campaignId,
@@ -148,6 +149,11 @@ export const payAllStudentsInCampaign = async (campaignId) => {
           model: Campaign,
           as: "campaign",
           attributes: ["campaign_id", "title"],
+        },
+        {
+          model: WorkSubmission,
+          where: { status: "approved" }, // Only pay if work is approved
+          required: true, // Inner join to ensure only students with approved work are fetched
         },
       ],
     });

@@ -78,10 +78,23 @@ class CampaignService extends BaseService {
     // Validate required fields
     this.validateRequired(campaignData, ["title", "description"]);
 
+    // Handle contentTypes -> content_types mapping
+    if (campaignData.contentTypes) {
+      let contentTypes = campaignData.contentTypes;
+      if (typeof contentTypes === "string") {
+        try {
+          contentTypes = JSON.parse(contentTypes);
+        } catch (e) {
+          // Keep as string if parsing fails, or handle error
+        }
+      }
+      campaignData.content_types = contentTypes;
+    }
+
     // Set user_id from authenticated user
     return await this.repository.create({
       ...campaignData,
-      user_id: userId
+      user_id: userId,
     });
   }
 
@@ -102,6 +115,19 @@ class CampaignService extends BaseService {
       campaign.user_id !== requestUser.id
     ) {
       throw new Error("Unauthorized to update this campaign");
+    }
+
+    // Handle contentTypes -> content_types mapping
+    if (campaignData.contentTypes) {
+      let contentTypes = campaignData.contentTypes;
+      if (typeof contentTypes === "string") {
+        try {
+          contentTypes = JSON.parse(contentTypes);
+        } catch (e) {
+          // Keep as string if parsing fails
+        }
+      }
+      campaignData.content_types = contentTypes;
     }
 
     return await this.repository.update(id, campaignData);
