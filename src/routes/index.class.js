@@ -18,6 +18,7 @@ import withdrawalRoutesClass from "./withdrawalRoutes.class.js";
 import campaignPaymentRoutesClass from "./campaignPaymentRoutes.class.js";
 import transactionRoutesClass from "./transactionRoutes.class.js";
 import workSubmissionRoutesClass from "./workSubmissionRoutes.class.js";
+import postSubmissionRoutesClass from "./postSubmissionRoutes.class.js";
 import paymentRoutesClass from "./paymentRoutes.class.js";
 import imageRoutesClass from "./ImageRoutes.class.js";
 
@@ -49,6 +50,7 @@ router.use("/v1/withdrawals", withdrawalRoutesClass);
 router.use("/v1/campaign-payments", campaignPaymentRoutesClass);
 router.use("/v1/transactions", transactionRoutesClass);
 router.use("/v1/work-submissions", workSubmissionRoutesClass);
+router.use("/v1/post-submissions", postSubmissionRoutesClass);
 router.use("/v1/payments", paymentRoutesClass);
 
 // Image and Upload Routes (OOP)

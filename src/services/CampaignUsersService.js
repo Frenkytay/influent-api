@@ -1,5 +1,6 @@
 import BaseService from "../core/BaseService.js";
 import CampaignUsersRepository from "../repositories/CampaignUsersRepository.js";
+import NotificationService from "./NotificationService.js";
 
 class CampaignUsersService extends BaseService {
   constructor() {
@@ -13,13 +14,18 @@ class CampaignUsersService extends BaseService {
     if (campaign_id) queryFilters.campaign_id = campaign_id;
     if (student_id) queryFilters.student_id = student_id;
     if (application_status) queryFilters.application_status = application_status;
-
     // Filter by student_id if user is student
     if (requestUser && requestUser.role === "student") {
       queryFilters.student_id = requestUser.id;
     }
 
     const where = this.repository.buildWhereClause(queryFilters);
+    
+    // Default sort by applied_at DESC (newest first)
+    if (!options.sort) {
+      options.sort = "applied_at";
+      options.order = "DESC";
+    }
     const order = this.repository.buildOrderClause(options.sort, options.order);
 
     return await this.repository.findAllWithRelations({ where, order });
@@ -41,6 +47,63 @@ class CampaignUsersService extends BaseService {
   async getByStudentId(studentId, options = {}) {
     const order = this.repository.buildOrderClause(options.sort, options.order);
     return await this.repository.findByStudentId(studentId, { order });
+  }
+
+  async approve(id, applicationNotes = null) {
+    const campaignUser = await this.getById(id);
+    
+    // Check campaign influencer limit
+    const campaign = campaignUser.campaign;
+    if (campaign && campaign.influencer_count > 0) {
+      const acceptedCount = await this.repository.count({
+        where: { 
+          campaign_id: campaignUser.campaign_id, 
+          application_status: "accepted" 
+        }
+      });
+
+      if (acceptedCount >= campaign.influencer_count) {
+        throw new Error("Cannot approve: Campaign has reached its influencer limit.");
+      }
+    }
+
+    // Check current status if needed, or just overwrite
+    // if (campaignUser.application_status !== 'pending') ...
+
+    const updated = await this.repository.update(id, {
+      application_status: "accepted",
+      accepted_at: new Date(),
+      ...(applicationNotes && { application_notes: applicationNotes }),
+    });
+
+    // Notify user
+    await NotificationService.createNotification({
+      user_id: campaignUser.student_id,
+      type: "application_status",
+      title: "Application Accepted!",
+      message: `Congratulations! Your application for the campaign "${campaignUser.campaign.title}" has been accepted.${applicationNotes ? ` Note: ${applicationNotes}` : ''}`,
+    });
+
+    return updated;
+  }
+
+  async reject(id, applicationNotes = null) {
+    const updated = await this.repository.update(id, {
+      application_status: "rejected",
+      rejected_at: new Date(),
+      ...(applicationNotes && { application_notes: applicationNotes }),
+    });
+
+    // Notify user
+    const campaignUser = await this.getById(id);
+    await NotificationService.createNotification({
+      user_id: campaignUser.student_id,
+      type: "application_status",
+      title: "Application Update",
+      message: `Your application for the campaign "${campaignUser.campaign.title}" was not successful.${applicationNotes ? ` Note: ${applicationNotes}` : ''}`,
+    });
+
+    return updated;
   }
 }
 

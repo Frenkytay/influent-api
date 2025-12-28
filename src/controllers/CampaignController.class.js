@@ -93,6 +93,28 @@ class CampaignController extends BaseController {
     await this.service.delete(req.params.id, req.user);
     this.sendSuccess(res, { message: "Campaign deleted successfully" });
   });
+
+  /**
+   * Approve campaign (admin only)
+   * POST /api/v1/campaigns/:id/approve
+   */
+  approveCampaign = this.asyncHandler(async (req, res) => {
+    // Optional: Check if user is admin
+    // if (req.user.role !== 'admin') ... 
+    
+    const campaign = await this.service.approveCampaign(req.params.id);
+    this.sendSuccess(res, campaign);
+  });
+
+  /**
+   * Reject campaign (admin only)
+   * POST /api/v1/campaigns/:id/reject
+   */
+  rejectCampaign = this.asyncHandler(async (req, res) => {
+    const { reason } = req.body;
+    const campaign = await this.service.rejectCampaign(req.params.id, reason);
+    this.sendSuccess(res, campaign);
+  });
 }
 
 export default new CampaignController();

@@ -1,8 +1,4 @@
-import {
-  payStudentForCampaign,
-  payAllStudentsInCampaign,
-  payStudentsCustom,
-} from "../utils/paymentService.js";
+import PaymentDistributionService from "./PaymentDistributionService.js";
 import CampaignRepository from "../repositories/CampaignRepository.js";
 import PaymentRepository from "../repositories/PaymentRepository.js";
 import Transaction from "../models/Transaction.js";
@@ -15,6 +11,7 @@ class CampaignPaymentService {
   constructor() {
     this.campaignRepo = CampaignRepository;
     this.paymentRepo = PaymentRepository;
+    this.paymentDistributionService = PaymentDistributionService;
   }
 
   async getCompanyHistory(userId) {
@@ -118,7 +115,7 @@ class CampaignPaymentService {
       throw new Error("Amount must be greater than 0");
     }
 
-    return await payStudentForCampaign(campaign_user_id, amount, description);
+    return await this.paymentDistributionService.payStudentForCampaign(campaign_user_id, amount, description);
   }
 
   async payAllStudents(paymentData) {
@@ -133,7 +130,7 @@ class CampaignPaymentService {
       throw new Error("Campaign not found");
     }
 
-    const result = await payAllStudentsInCampaign(campaign_id);
+    const result = await this.paymentDistributionService.payAllStudentsInCampaign(campaign_id);
 
     return {
       ...result,
@@ -158,7 +155,7 @@ class CampaignPaymentService {
       }
     }
 
-    return await payStudentsCustom(payments);
+    return await this.paymentDistributionService.payStudentsCustom(payments);
   }
 }
 

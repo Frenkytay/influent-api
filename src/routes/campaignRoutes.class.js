@@ -13,5 +13,7 @@ router.get("/", AuthMiddleware.verifyJWT, CampaignController.getAll);
 router.post("/", AuthMiddleware.verifyJWT, CampaignController.create);
 router.put("/:id", AuthMiddleware.verifyJWT, CampaignController.update);
 router.delete("/:id", AuthMiddleware.verifyJWT, CampaignController.delete);
+router.post("/:id/approve", AuthMiddleware.verifyJWT, CampaignController.approveCampaign);
+router.post("/:id/reject", AuthMiddleware.verifyJWT, CampaignController.rejectCampaign);
 
 export default router;

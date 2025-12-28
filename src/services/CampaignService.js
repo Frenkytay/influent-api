@@ -1,6 +1,8 @@
 import BaseService from "../core/BaseService.js";
 import CampaignRepository from "../repositories/CampaignRepository.js";
+import CampaignUsers from "../models/CampaignUsers.js";
 import { Op } from "sequelize";
+import NotificationService from "./NotificationService.js";
 
 /**
  * CampaignService - Contains business logic for Campaign operations
@@ -24,6 +26,19 @@ class CampaignService extends BaseService {
       if (requestUser.role === "student") {
         // Students see ALL active campaigns, sorted by newest
         where.status = "active";
+        
+        // Exclude campaigns the student has already applied to
+        const appliedCampaigns = await CampaignUsers.findAll({
+          where: { student_id: requestUser.id },
+          attributes: ["campaign_id"],
+        });
+        
+        const appliedCampaignIds = appliedCampaigns.map(c => c.campaign_id);
+        
+        if (appliedCampaignIds.length > 0) {
+          where.campaign_id = { [Op.notIn]: appliedCampaignIds };
+        }
+
         options.sort = "created_at";
         options.order = "DESC";
       } else {
@@ -177,6 +192,73 @@ class CampaignService extends BaseService {
     );
 
     return await this.repository.findByStatus(status, { order });
+  }
+
+  /**
+   * Approve campaign (admin only)
+   * Changes status to pending_payment
+   */
+  async approveCampaign(id) {
+    const campaign = await this.repository.findById(id);
+    
+    if (!campaign) {
+      throw new Error("Campaign not found");
+    }
+
+    if (campaign.status === "pending_payment") {
+      throw new Error("Campaign is already approved");
+    }
+
+    // You might want to update other fields like approval_date if you have them
+    const updated = await this.repository.update(id, {
+      status: "pending_payment",
+      updated_at: new Date()
+    });
+
+    // Notify Company
+    if (campaign && campaign.user_id) {
+       await NotificationService.createNotification({
+        user_id: campaign.user_id,
+        type: "campaign_status",
+        title: "Campaign Approved",
+        message: `Your campaign "${campaign.title}" has been approved. You can now proceed with payment.`,
+        is_read: false,
+      });
+    }
+
+    return updated;
+  }
+
+  /**
+   * Reject campaign (admin only)
+   * Changes status to draft (so user can edit) or cancelled
+   */
+  async rejectCampaign(id, reason) {
+    const campaign = await this.repository.findById(id);
+    
+    if (!campaign) {
+      throw new Error("Campaign not found");
+    }
+
+    // Update status to 'draft' so user can fix issues, or 'cancelled' if appropriate.
+    // Let's assume 'draft' to allow re-submission.
+    const updated = await this.repository.update(id, {
+      status: "draft", // Send back to draft
+      updated_at: new Date()
+    });
+
+    // Notify Company
+    if (campaign && campaign.user_id) {
+       await NotificationService.createNotification({
+        user_id: campaign.user_id,
+        type: "campaign_status",
+        title: "Campaign Rejected/Returned",
+        message: `Your campaign "${campaign.title}" has been returned for review.${reason ? ` Reason: ${reason}` : ''}`,
+        is_read: false,
+      });
+    }
+
+    return updated;
   }
 }
 

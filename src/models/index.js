@@ -10,6 +10,7 @@ import Review from "./Review.js";
 import Notification from "./Notification.js";
 import Payment from "./Payment.js";
 import WorkSubmission from "./WorkSubmission.js";
+import PostSubmission from "./PostSubmission.js";
 import Withdrawal from "./Withdrawal.js";
 import Transaction from "./Transaction.js";
 
@@ -26,6 +27,7 @@ const models = {
   Notification,
   Payment,
   WorkSubmission,
+  PostSubmission,
   Withdrawal,
   Transaction,
 };
@@ -50,6 +52,7 @@ export {
   Notification,
   Payment,
   WorkSubmission,
+  PostSubmission,
   Withdrawal,
   Transaction,
 };

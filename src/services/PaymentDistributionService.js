@@ -2,17 +2,162 @@ import User from "../models/User.js";
 import Campaign from "../models/Campaign.js";
 import CampaignUsers from "../models/CampaignUsers.js";
 import Transaction from "../models/Transaction.js";
+import Payment from "../models/Payment.js";
 import Notification from "../models/Notification.js";
+import WorkSubmission from "../models/WorkSubmission.js";
 import sequelize from "../config/db.js";
+import { Op } from "sequelize";
 
 /**
  * PaymentDistributionService - Handles payment distribution to students for campaigns
  */
 class PaymentDistributionService {
   /**
+   * Check if all accepted students are paid and update campaign status
+   */
+  async checkAndUpdateCampaignStatus(campaignId, transaction = null) {
+    try {
+      console.log(`[DEBUG] checkAndUpdateCampaignStatus for Campaign ${campaignId}`);
+      // 1. Get all accepted students
+      const acceptedCount = await CampaignUsers.count({
+        where: { campaign_id: campaignId, application_status: "accepted" },
+        transaction,
+      });
+
+      console.log(`[DEBUG] Campaign ${campaignId}: Accepted Students = ${acceptedCount}`);
+
+      if (acceptedCount === 0) return;
+
+      // 2. Get accepted students IDs
+      const acceptedUsers = await CampaignUsers.findAll({
+        where: { campaign_id: campaignId, application_status: "accepted" },
+        attributes: ["id"],
+        transaction,
+      });
+      const acceptedIds = acceptedUsers.map((u) => u.id);
+
+      // 3. Count distinct payments for these users
+      const paymentCount = await Transaction.count({
+        where: {
+          reference_type: "campaign_users",
+          reference_id: { [Op.in]: acceptedIds },
+          type: "credit",
+        },
+        distinct: true,
+        col: "reference_id",
+        transaction,
+      });
+
+      console.log(`[DEBUG] Campaign ${campaignId}: Paid Students Count = ${paymentCount}`);
+
+      // 4. Compare and Update
+      if (paymentCount >= acceptedCount) {
+        console.log(`[DEBUG] All students paid for Campaign ${campaignId}. Updating status to 'paid'.`);
+        await Campaign.update(
+          { status: "paid" },
+          { where: { campaign_id: campaignId }, transaction }
+        );
+
+        // Refund remaining budget
+        await this.refundRemainingBudget(campaignId, transaction);
+      }
+    } catch (error) {
+      console.error("Error updating campaign status:", error);
+    }
+  }
+
+  /**
+   * Refund remaining campaign budget to company wallet
+   */
+  async refundRemainingBudget(campaignId, transaction = null) {
+    try {
+      const campaign = await Campaign.findByPk(campaignId, { 
+        attributes: ["campaign_id", "user_id", "title"], 
+        transaction 
+      });
+      if (!campaign || !campaign.user_id) return;
+
+      // 1. Calculate Total Payment (Budget)
+      const totalBudget = await Payment.sum("amount", {
+        where: { campaign_id: campaignId, status: "success" },
+        transaction,
+      }) || 0;
+      
+      console.log(`[DEBUG] Campaign ${campaignId} (${campaign.title}): Total Budget = ${totalBudget}`);
+
+      // 2. Calculate Total Distributed (Spending)
+      // Get all CampaignUser IDs for this campaign
+      const campaignUserIds = await CampaignUsers.findAll({
+         where: { campaign_id: campaignId },
+         attributes: ["id"],
+         transaction
+      });
+      const ids = campaignUserIds.map(cu => cu.id);
+      
+      let totalDistributed = 0;
+      if (ids.length > 0) {
+        totalDistributed = await Transaction.sum("amount", {
+          where: {
+             reference_type: "campaign_users",
+             reference_id: { [Op.in]: ids },
+             type: "credit"
+          },
+          transaction
+        }) || 0;
+      }
+
+      console.log(`[DEBUG] Campaign ${campaignId}: Total Distributed = ${totalDistributed}`);
+
+      const remaining = parseFloat(totalBudget) - parseFloat(totalDistributed);
+      console.log(`[DEBUG] Campaign ${campaignId}: Remaining = ${remaining}`);
+
+      if (remaining > 0) {
+         // Create Refund Transaction
+         console.log(`[DEBUG] Processing refund of ${remaining} to user ${campaign.user_id}`);
+         const companyUser = await User.findByPk(campaign.user_id, { transaction });
+         const balanceBefore = parseFloat(companyUser.balance || 0);
+         const balanceAfter = balanceBefore + remaining;
+
+         await companyUser.update({ balance: balanceAfter }, { transaction });
+
+         await Transaction.create({
+           user_id: campaign.user_id,
+           amount: remaining,
+           type: "credit",
+           category: "refund", // Ensure 'refund' is in enum
+           reference_type: "campaign_refund",
+           reference_id: campaignId,
+           description: `Refund of remaining budget for campaign: ${campaign.title}`,
+           balance_before: balanceBefore,
+           balance_after: balanceAfter,
+         }, { transaction });
+
+         // Notify Company
+         await Notification.create({
+            user_id: campaign.user_id,
+            type: "refund",
+            title: "Campaign Budget Refund",
+            message: `A refund of Rp ${remaining.toLocaleString("id-ID")} has been credited to your wallet from campaign "${campaign.title}".`,
+            is_read: false
+         }, { transaction });
+      } else {
+        console.log(`[DEBUG] No remaining budget to refund.`);
+      }
+
+    } catch (error) {
+      console.error("Error refunding budget:", error);
+    }
+  }
+
+  /**
    * Pay a single student for their campaign work
    */
-  async payStudentForCampaign(campaignUserId, amount, description = null) {
+  async payStudentForCampaign(
+    campaignUserId,
+    amount,
+    description = null,
+    checkStatus = true
+  ) {
     const t = await sequelize.transaction();
 
     try {
@@ -84,6 +229,11 @@ class PaymentDistributionService {
 
       await t.commit();
 
+      // Check campaign status after commit (new transaction scope)
+      if (checkStatus) {
+        await this.checkAndUpdateCampaignStatus(campaign.campaign_id);
+      }
+
       return {
         success: true,
         transaction,
@@ -142,6 +292,11 @@ class PaymentDistributionService {
           as: "user",
           attributes: ["user_id", "name"],
         },
+        {
+          model: WorkSubmission,
+          where: { status: "approved" },
+          required: true,
+        },
       ],
     });
 
@@ -166,7 +321,8 @@ class PaymentDistributionService {
         const result = await this.payStudentForCampaign(
           campaignUser.id,
           amountPerStudent,
-          `Batch payment for campaign: ${campaign.title}`
+          `Batch payment for campaign: ${campaign.title}`,
+          false // Skip individual status check for optimization
         );
         results.push({
           student_id: campaignUser.user.user_id,
@@ -184,6 +340,11 @@ class PaymentDistributionService {
         });
         failedCount++;
       }
+    }
+
+    // Check status once after batch processing
+    if (paidCount > 0) {
+      await this.checkAndUpdateCampaignStatus(campaignId);
     }
 
     return {

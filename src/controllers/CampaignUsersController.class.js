@@ -37,6 +37,22 @@ class CampaignUsersController extends BaseController {
     await this.service.delete(req.params.id);
     this.sendSuccess(res, { message: "Campaign user deleted successfully" });
   });
+  approve = this.asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { application_notes } = req.body;
+    
+    // accepted_at is ignored from body as requested, handled by backend
+    const item = await this.service.approve(id, application_notes);
+    this.sendSuccess(res, item);
+  });
+
+  reject = this.asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { application_notes } = req.body;
+    
+    const item = await this.service.reject(id, application_notes);
+    this.sendSuccess(res, item);
+  });
 }
 
 export default new CampaignUsersController();

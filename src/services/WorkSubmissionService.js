@@ -1,6 +1,7 @@
 import BaseService from "../core/BaseService.js";
 import WorkSubmissionRepository from "../repositories/WorkSubmissionRepository.js";
 import CampaignUsersRepository from "../repositories/CampaignUsersRepository.js";
+import NotificationService from "./NotificationService.js";
 
 class WorkSubmissionService extends BaseService {
   constructor() {
@@ -18,6 +19,7 @@ class WorkSubmissionService extends BaseService {
         id: data.campaign_user_id,
         application_status: "accepted",
       },
+      include: ["campaign", "user"], // Include campaign for title and owner, user for student name
     });
 
     if (!campaignUser) {
@@ -43,7 +45,19 @@ class WorkSubmissionService extends BaseService {
       submissionData.submission_content = submissionContent;
     }
 
-    return await this.repository.create(submissionData);
+    const submission = await this.repository.create(submissionData);
+
+    // Notify campaign owner (company)
+    if (campaignUser.campaign && campaignUser.campaign.user_id) {
+      await NotificationService.createNotification({
+        user_id: campaignUser.campaign.user_id,
+        type: "work_submission",
+        title: "New Work Submission",
+        message: `Student ${campaignUser.user ? campaignUser.user.name : "Unknown"} has submitted work for campaign "${campaignUser.campaign.title}".`,
+      });
+    }
+
+    return submission;
   }
 
   /**
@@ -136,11 +150,35 @@ class WorkSubmissionService extends BaseService {
    * Approve submission
    */
   async approveSubmission(id, reviewedBy, feedback = null) {
-    return await this.repository.updateStatus(id, "approved", {
+    const submission = await this.getSubmissionWithRelations(id);
+    if (!submission) {
+      throw new Error("Submission not found");
+    }
+
+    const updated = await this.repository.updateStatus(id, "approved", {
       reviewed_by: reviewedBy,
       review_feedback: feedback,
       reviewed_at: new Date(),
     });
+
+    // Notify student
+    const campaignUser = submission.CampaignUser;
+    if (campaignUser && campaignUser.student_id) {
+      await NotificationService.createNotification({
+        user_id: campaignUser.student_id ? (campaignUser.user ? campaignUser.user.user_id : null) : null,
+        // Fallback or better logic: CampaignUser belongsTo User (as student). 
+        // Let's rely on campaignUser.student_id or campaignUser.user.user_id 
+        // In CampaignUsers model: belongsTo User as 'user', and Student as 'student'.
+        // user_id in Notification is the global User ID.
+        // Assuming campaignUser.user is the User model for the student.
+        user_id: campaignUser.user ? campaignUser.user.user_id : campaignUser.student_id, 
+        type: "work_status",
+        title: "Work Submission Approved!",
+        message: `Great news! Your work submission for "${campaignUser.campaign.title}" has been approved.${feedback ? ` Feedback: ${feedback}` : ''}`,
+      });
+    }
+
+    return updated;
   }
 
   /**
