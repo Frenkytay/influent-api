@@ -115,6 +115,18 @@ class CampaignController extends BaseController {
     const campaign = await this.service.rejectCampaign(req.params.id, reason);
     this.sendSuccess(res, campaign);
   });
+
+  /**
+   * Complete campaign
+   * POST /api/v1/campaigns/:id/complete
+   */
+  completeCampaign = this.asyncHandler(async (req, res) => {
+    if (!req.user || !req.user.id) {
+       return this.sendError(res, "Unauthorized", 401);
+    }
+    const campaign = await this.service.completeCampaign(req.params.id, req.user);
+    this.sendSuccess(res, campaign);
+  });
 }
 
 export default new CampaignController();

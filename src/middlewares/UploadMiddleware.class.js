@@ -2,6 +2,7 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import os from "os";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,7 +12,7 @@ const __dirname = path.dirname(__filename);
  */
 class UploadMiddleware {
   constructor() {
-    this.uploadDir = path.join(__dirname, "../../uploads");
+    this.uploadDir = this.resolveUploadDir();
     this.ensureUploadDir();
     
     // Configure storage
@@ -52,11 +53,45 @@ class UploadMiddleware {
   }
 
   /**
+   * Resolve appropriate upload directory
+   */
+  resolveUploadDir() {
+    // If explicitly on Vercel or similar read-only env, prefer tmp
+    if (process.env.VERCEL || process.env.AWS_REGION) {
+         // return os.tmpdir();
+         // Actually, let's just stick to the try/catch writability check as it's more robust
+    }
+
+    const localUploads = path.join(__dirname, "../../uploads");
+    try {
+      // Try to create/access the local uploads directory
+      // We check access first to avoid mkdir throwing
+      if (!fs.existsSync(localUploads)) {
+        fs.mkdirSync(localUploads, { recursive: true });
+      }
+      // Test writability
+      fs.accessSync(localUploads, fs.constants.W_OK);
+      return localUploads;
+    } catch (err) {
+      console.warn("Local uploads directory is read-only or inaccessible. Falling back to system temp directory.");
+      return os.tmpdir();
+    }
+  }
+
+  /**
    * Ensure upload directory exists
    */
   ensureUploadDir() {
+    if (this.uploadDir === os.tmpdir()) {
+         return;
+    }
+
     if (!fs.existsSync(this.uploadDir)) {
-      fs.mkdirSync(this.uploadDir, { recursive: true });
+       try {
+        fs.mkdirSync(this.uploadDir, { recursive: true });
+       } catch (e) {
+           console.error("Failed to ensure upload dir", e);
+       }
     }
   }
 

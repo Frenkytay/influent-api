@@ -260,6 +260,45 @@ class CampaignService extends BaseService {
 
     return updated;
   }
+
+  /**
+   * Complete campaign (company owner only via controller check)
+   * Changes status to completed
+   */
+  async completeCampaign(id, requestUser) {
+    const campaign = await this.repository.findById(id);
+
+    if (!campaign) {
+      throw new Error("Campaign not found");
+    }
+
+    // Check ownership
+    if (requestUser.role !== "admin" && campaign.user_id !== requestUser.id) {
+      throw new Error("Unauthorized to complete this campaign");
+    }
+
+    if (campaign.status === "completed") {
+      throw new Error("Campaign is already completed");
+    }
+
+    const updated = await this.repository.update(id, {
+      status: "completed",
+      updated_at: new Date()
+    });
+
+    // Also update all accepted campaign users to completed
+    // await CampaignUsers.update(
+    //   { application_status: "completed" },
+    //   { 
+    //     where: { 
+    //       campaign_id: id,
+    //       application_status: "completed" 
+    //     } 
+    //   }
+    // );
+
+    return updated;
+  }
 }
 
 export default new CampaignService();

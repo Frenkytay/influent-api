@@ -4,6 +4,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import Campaign from "../models/Campaign.js";
 import User from "../models/User.js";
+import UploadMiddleware from "../middlewares/UploadMiddleware.class.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,7 +23,8 @@ class ImageController extends BaseController {
    */
   getImage = this.asyncHandler(async (req, res) => {
     const filename = req.params.filename;
-    const imagePath = path.join(__dirname, "../../uploads", filename);
+    // Use the same upload directory as configured in the middleware
+    const imagePath = path.join(UploadMiddleware.uploadDir, filename);
 
     // Check if file exists
     if (!fs.existsSync(imagePath)) {
