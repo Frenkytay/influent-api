@@ -136,8 +136,8 @@ class PaymentDistributionService {
          await Notification.create({
             user_id: campaign.user_id,
             type: "refund",
-            title: "Campaign Budget Refund",
-            message: `A refund of Rp ${remaining.toLocaleString("id-ID")} has been credited to your wallet from campaign "${campaign.title}".`,
+            title: "Pengembalian Dana Kampanye",
+            message: `Pengembalian dana sebesar Rp ${remaining.toLocaleString("id-ID")} telah dikreditkan ke dompet Anda dari kampanye "${campaign.title}".`,
             is_read: false
          }, { transaction });
       } else {
@@ -210,10 +210,10 @@ class PaymentDistributionService {
       await Notification.create(
         {
           user_id: student.user_id,
-          title: "Campaign Payment Received",
-          message: `You received Rp ${paymentAmount.toLocaleString(
+          title: "Pembayaran Kampanye Diterima",
+          message: `Anda menerima Rp ${paymentAmount.toLocaleString(
             "id-ID"
-          )} for completing campaign: ${campaign.title}`,
+          )} untuk menyelesaikan kampanye: ${campaign.title}`,
           type: "payment",
           is_read: false,
         },

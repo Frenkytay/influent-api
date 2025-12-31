@@ -52,8 +52,8 @@ class WorkSubmissionService extends BaseService {
       await NotificationService.createNotification({
         user_id: campaignUser.campaign.user_id,
         type: "work_submission",
-        title: "New Work Submission",
-        message: `Student ${campaignUser.user ? campaignUser.user.name : "Unknown"} has submitted work for campaign "${campaignUser.campaign.title}".`,
+        title: "Pengajuan Pekerjaan Baru",
+        message: `Mahasiswa ${campaignUser.user ? campaignUser.user.name : "Unknown"} telah mengirimkan pekerjaan untuk kampanye "${campaignUser.campaign.title}".`,
       });
     }
 
@@ -173,8 +173,8 @@ class WorkSubmissionService extends BaseService {
         // Assuming campaignUser.user is the User model for the student.
         user_id: campaignUser.user ? campaignUser.user.user_id : campaignUser.student_id, 
         type: "work_status",
-        title: "Work Submission Approved!",
-        message: `Great news! Your work submission for "${campaignUser.campaign.title}" has been approved.${feedback ? ` Feedback: ${feedback}` : ''}`,
+        title: "Pengajuan Pekerjaan Disetujui!",
+        message: `Kabar baik! Pengajuan pekerjaan Anda untuk "${campaignUser.campaign.title}" telah disetujui.${feedback ? ` Masukan: ${feedback}` : ''}`,
       });
     }
 

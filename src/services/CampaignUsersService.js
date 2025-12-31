@@ -80,8 +80,8 @@ class CampaignUsersService extends BaseService {
     await NotificationService.createNotification({
       user_id: campaignUser.student_id,
       type: "application_status",
-      title: "Application Accepted!",
-      message: `Congratulations! Your application for the campaign "${campaignUser.campaign.title}" has been accepted.${applicationNotes ? ` Note: ${applicationNotes}` : ''}`,
+      title: "Lamaran Diterima!",
+      message: `Selamat! Lamaran Anda untuk kampanye "${campaignUser.campaign.title}" telah diterima.${applicationNotes ? ` Catatan: ${applicationNotes}` : ''}`,
     });
 
     return updated;
@@ -99,8 +99,8 @@ class CampaignUsersService extends BaseService {
     await NotificationService.createNotification({
       user_id: campaignUser.student_id,
       type: "application_status",
-      title: "Application Update",
-      message: `Your application for the campaign "${campaignUser.campaign.title}" was not successful.${applicationNotes ? ` Note: ${applicationNotes}` : ''}`,
+      title: "Pembaruan Lamaran",
+      message: `Lamaran Anda untuk kampanye "${campaignUser.campaign.title}" belum berhasil.${applicationNotes ? ` Catatan: ${applicationNotes}` : ''}`,
     });
 
     return updated;

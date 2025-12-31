@@ -220,8 +220,8 @@ class CampaignService extends BaseService {
        await NotificationService.createNotification({
         user_id: campaign.user_id,
         type: "campaign_status",
-        title: "Campaign Approved",
-        message: `Your campaign "${campaign.title}" has been approved. You can now proceed with payment.`,
+        title: "Kampanye Disetujui",
+        message: `Kampanye Anda "${campaign.title}" telah disetujui. Anda sekarang dapat melanjutkan pembayaran.`,
         is_read: false,
       });
     }
@@ -252,8 +252,8 @@ class CampaignService extends BaseService {
        await NotificationService.createNotification({
         user_id: campaign.user_id,
         type: "campaign_status",
-        title: "Campaign Rejected/Returned",
-        message: `Your campaign "${campaign.title}" has been returned for review.${reason ? ` Reason: ${reason}` : ''}`,
+        title: "Kampanye Ditolak/Dikembalikan",
+        message: `Kampanye Anda "${campaign.title}" telah dikembalikan untuk ditinjau.${reason ? ` Alasan: ${reason}` : ''}`,
         is_read: false,
       });
     }

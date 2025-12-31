@@ -39,8 +39,8 @@ class PostSubmissionService {
       await NotificationService.createNotification({
         user_id: campaignUser.campaign.user_id,
         type: "post_submission",
-        title: "New Post Link Submitted",
-        message: `Student ${studentName} has submitted the post link for campaign "${campaignUser.campaign.title}".`,
+        title: "Tautan Postingan Baru Dikirim",
+        message: `Mahasiswa ${studentName} telah mengirimkan tautan postingan untuk kampanye "${campaignUser.campaign.title}".`,
       });
     }
 

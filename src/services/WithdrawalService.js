@@ -85,10 +85,10 @@ class WithdrawalService {
 
       await this.notificationRepo.create({
         user_id: userId,
-        title: "Withdrawal Request Submitted",
-        message: `Your withdrawal request of Rp ${parseFloat(amount).toLocaleString(
+        title: "Permintaan Penarikan Dikirim",
+        message: `Permintaan penarikan Anda sebesar Rp ${parseFloat(amount).toLocaleString(
           "id-ID"
-        )} has been submitted and is pending review.`,
+        )} telah dikirim dan sedang menunggu tinjauan.`,
         type: "withdrawal",
         is_read: false,
       });
@@ -97,8 +97,8 @@ class WithdrawalService {
       for (const admin of admins) {
         await this.notificationRepo.create({
           user_id: admin.user_id,
-          title: "New Withdrawal Request",
-          message: `${user.name} has requested a withdrawal of Rp ${parseFloat(
+          title: "Permintaan Penarikan Baru",
+          message: `${user.name} telah meminta penarikan sebesar Rp ${parseFloat(
             amount
           ).toLocaleString("id-ID")}`,
           type: "withdrawal",
@@ -169,10 +169,10 @@ class WithdrawalService {
 
     await this.notificationRepo.create({
       user_id: withdrawal.user_id,
-      title: "Withdrawal Approved",
-      message: `Your withdrawal request of Rp ${parseFloat(
+      title: "Penarikan Disetujui",
+      message: `Permintaan penarikan Anda sebesar Rp ${parseFloat(
         withdrawal.amount
-      ).toLocaleString("id-ID")} has been approved and will be processed soon.`,
+      ).toLocaleString("id-ID")} telah disetujui dan akan segera diproses.`,
       type: "withdrawal",
       is_read: false,
     });
@@ -214,10 +214,10 @@ class WithdrawalService {
 
     await this.notificationRepo.create({
       user_id: withdrawal.user_id,
-      title: "Withdrawal Completed",
-      message: `Your withdrawal request of Rp ${parseFloat(
+      title: "Penarikan Selesai",
+      message: `Permintaan penarikan Anda sebesar Rp ${parseFloat(
         withdrawal.amount
-      ).toLocaleString("id-ID")} has been completed.`,
+      ).toLocaleString("id-ID")} telah selesai.`,
       type: "withdrawal",
       is_read: false,
     });
@@ -288,10 +288,10 @@ class WithdrawalService {
 
       await this.notificationRepo.create({
         user_id: withdrawal.user_id,
-        title: "Withdrawal Rejected - Balance Refunded",
-        message: `Your withdrawal request of Rp ${parseFloat(
+        title: "Penarikan Ditolak - Saldo Dikembalikan",
+        message: `Permintaan penarikan Anda sebesar Rp ${parseFloat(
           withdrawal.amount
-        ).toLocaleString("id-ID")} has been rejected. Reason: ${rejectionReason}`,
+        ).toLocaleString("id-ID")} telah ditolak. Alasan: ${rejectionReason}`,
         type: "withdrawal",
         is_read: false,
       });

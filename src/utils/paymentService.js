@@ -75,10 +75,10 @@ export const payStudentForCampaign = async (
     await Notification.create(
       {
         user_id: student.user_id,
-        title: "Campaign Payment Received",
-        message: `You received Rp ${paymentAmount.toLocaleString(
+        title: "Pembayaran Kampanye Diterima",
+        message: `Anda menerima Rp ${paymentAmount.toLocaleString(
           "id-ID"
-        )} for completing campaign: ${campaign.title}`,
+        )} untuk menyelesaikan kampanye: ${campaign.title}`,
         type: "payment",
         is_read: false,
       },
