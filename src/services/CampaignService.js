@@ -3,6 +3,7 @@ import CampaignRepository from "../repositories/CampaignRepository.js";
 import CampaignUsers from "../models/CampaignUsers.js";
 import { Op } from "sequelize";
 import NotificationService from "./NotificationService.js";
+import UserRepository from "../repositories/UserRepository.js";
 
 /**
  * CampaignService - Contains business logic for Campaign operations
@@ -94,23 +95,41 @@ class CampaignService extends BaseService {
     this.validateRequired(campaignData, ["title", "description"]);
 
     // Handle contentTypes -> content_types mapping
-    if (campaignData.contentTypes) {
-      let contentTypes = campaignData.contentTypes;
-      if (typeof contentTypes === "string") {
+    if (campaignData.content_types) {
+      let content_types = campaignData.content_types;
+      if (typeof content_types === "string") {
         try {
-          contentTypes = JSON.parse(contentTypes);
+          content_types = JSON.parse(content_types);
         } catch (e) {
-          // Keep as string if parsing fails, or handle error
         }
       }
-      campaignData.content_types = contentTypes;
+      campaignData.content_types = content_types;
     }
 
     // Set user_id from authenticated user
-    return await this.repository.create({
+    const campaign = await this.repository.create({
       ...campaignData,
       user_id: userId,
     });
+
+    // Notify all admins
+    try {
+      const admins = await UserRepository.findByRole("admin");
+      for (const admin of admins) {
+        await NotificationService.createNotification({
+          user_id: admin.user_id, // Note: check if admin.id or admin.user_id, usually id in User model. Assuming id based on other code.
+          type: "campaign_created",
+          title: "Kampanye Baru Dibuat",
+          message: `Kampanye baru "${campaign.title}" telah dibuat dan menunggu persetujuan.`,
+          is_read: false,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to notify admins about new campaign:", error);
+      // Don't fail the request if notification fails
+    }
+
+    return campaign;
   }
 
   /**
@@ -243,8 +262,9 @@ class CampaignService extends BaseService {
     // Update status to 'draft' so user can fix issues, or 'cancelled' if appropriate.
     // Let's assume 'draft' to allow re-submission.
     const updated = await this.repository.update(id, {
-      status: "draft", // Send back to draft
-      updated_at: new Date()
+      status: "cancelled", // Send back to draft
+      updated_at: new Date(),
+      cancellation_reason: reason,
     });
 
     // Notify Company

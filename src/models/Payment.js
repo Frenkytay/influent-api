@@ -29,6 +29,10 @@ Payment.init(
       type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
     },
+    admin_fee: {
+      type: DataTypes.DECIMAL(12, 2),
+      defaultValue: 0,
+    },
     status: {
       type: DataTypes.STRING(50),
       comment: "pending, paid, failed, expire",

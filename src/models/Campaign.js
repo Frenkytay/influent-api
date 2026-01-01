@@ -122,9 +122,14 @@ Campaign.init(
       type: DataTypes.ENUM('draft','admin_review','pending_payment','cancelled','active','completed' , 'paid'),
       defaultValue: "admin_review",
     },
+    
     rating: {
       type: DataTypes.INTEGER,
       validate: { min: 1, max: 5 },
+    },
+    cancellation_reason: {
+      type: DataTypes.TEXT,
+      comment: "Reason for cancellation",
     },
     created_at: {
       type: DataTypes.DATE,

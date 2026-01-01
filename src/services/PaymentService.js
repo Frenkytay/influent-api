@@ -44,6 +44,9 @@ class PaymentService extends BaseService {
       throw new Error("No price configured for this campaign");
     }
 
+    const ADMIN_FEE = 5000;
+    const total_amount = amount + ADMIN_FEE;
+
     // Build order ID
     const order_id = `CAMPAIGN-${campaignId}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -61,7 +64,7 @@ class PaymentService extends BaseService {
     const parameter = {
       transaction_details: {
         order_id,
-        gross_amount: Math.round(amount),
+        gross_amount: Math.round(total_amount),
       },
       item_details: [
         {
@@ -69,6 +72,12 @@ class PaymentService extends BaseService {
           price: Math.round(amount),
           quantity: 1,
           name: campaign.title || `Campaign ${campaignId}`,
+        },
+        {
+          id: `admin-fee`,
+          price: Math.round(ADMIN_FEE),
+          quantity: 1,
+          name: "Admin Fee",
         },
       ],
       customer_details: customer,
@@ -81,7 +90,8 @@ class PaymentService extends BaseService {
       order_id,
       campaign_id: campaignId,
       user_id: userId || null,
-      amount: amount,
+      amount: total_amount,
+      admin_fee: ADMIN_FEE,
       status: "pending",
       raw_response: snapResponse,
     });

@@ -9,13 +9,15 @@ class NotificationController extends BaseController {
   getAll = this.asyncHandler(async (req, res) => {
     let { user_id, type, is_read, sort, order } = req.query;
 
-    // If user is not admin, they can only see their own notification
+    // Default to current user if not specified
+    if (!user_id) {
+      user_id = req.user.id;
+    }
+
+    // If user is not admin, they can only see their own notification (force override)
     if (req.user.role !== "admin") {
       user_id = req.user.id;
     }
-    
-    // If user_id is still not set (e.g. admin didn't provide it), do we want all?
-    // Yes, allow admin to see all if they want.
     
     const notifications = await this.service.getAll(
       { user_id, type, is_read },

@@ -111,8 +111,8 @@ class CampaignController extends BaseController {
    * POST /api/v1/campaigns/:id/reject
    */
   rejectCampaign = this.asyncHandler(async (req, res) => {
-    const { reason } = req.body;
-    const campaign = await this.service.rejectCampaign(req.params.id, reason);
+    const { cancellation_reason } = req.body;
+    const campaign = await this.service.rejectCampaign(req.params.id, cancellation_reason);
     this.sendSuccess(res, campaign);
   });
 

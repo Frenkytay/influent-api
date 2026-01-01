@@ -16,6 +16,15 @@ class TransactionController extends BaseController {
     this.sendSuccess(res, result);
   });
 
+  getRefunds = this.asyncHandler(async (req, res) => {
+    if (!req.user || !req.user.id) {
+      return this.sendError(res, "Unauthorized", 401);
+    }
+
+    const result = await this.service.getMyTransactions(req.user.id, { category: "refund" });
+    this.sendSuccess(res, result);
+  });
+
   getTransactionById = this.asyncHandler(async (req, res) => {
     if (!req.user || !req.user.id) {
       return this.sendError(res, "Unauthorized", 401);

@@ -78,12 +78,22 @@ class PaymentDistributionService {
       if (!campaign || !campaign.user_id) return;
 
       // 1. Calculate Total Payment (Budget)
-      const totalBudget = await Payment.sum("amount", {
+      // 1. Calculate Total Payment (Budget)
+      const payments = await Payment.findAll({
         where: { campaign_id: campaignId, status: "success" },
+        attributes: [
+          [sequelize.fn("sum", sequelize.col("amount")), "total_amount"],
+          [sequelize.fn("sum", sequelize.col("admin_fee")), "total_fee"],
+        ],
         transaction,
-      }) || 0;
+        raw: true,
+      });
+
+      const totalAmount = payments[0].total_amount || 0;
+      const totalFee = payments[0].total_fee || 0;
+      const totalBudget = parseFloat(totalAmount) - parseFloat(totalFee);
       
-      console.log(`[DEBUG] Campaign ${campaignId} (${campaign.title}): Total Budget = ${totalBudget}`);
+      console.log(`[DEBUG] Campaign ${campaignId} (${campaign.title}): Total Paid = ${totalAmount}, Fee = ${totalFee}, Real Budget = ${totalBudget}`);
 
       // 2. Calculate Total Distributed (Spending)
       // Get all CampaignUser IDs for this campaign

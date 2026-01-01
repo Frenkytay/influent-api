@@ -1,0 +1,1 @@
+ALTER TABLE payment ADD COLUMN admin_fee DECIMAL(12, 2) DEFAULT 0;

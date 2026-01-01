@@ -6,6 +6,7 @@ const router = express.Router();
 
 // User routes
 router.get("/my-transactions", AuthMiddleware.verifyJWT, TransactionController.getMyTransactions);
+router.get("/refunds", AuthMiddleware.verifyJWT, TransactionController.getRefunds);
 router.get("/balance", AuthMiddleware.verifyJWT, TransactionController.getBalance);
 
 // Admin routes
