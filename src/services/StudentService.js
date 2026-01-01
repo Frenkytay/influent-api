@@ -1,5 +1,6 @@
 import BaseService from "../core/BaseService.js";
 import StudentRepository from "../repositories/StudentRepository.js";
+import UserRepository from "../repositories/UserRepository.js";
 import InstagramService from "./InstagramService.js";
 import AppError from "../core/AppError.js";
 
@@ -61,6 +62,73 @@ class StudentService extends BaseService {
             followers_count: igDetails.followers_count
         }
     };
+  }
+
+  /**
+   * Update Student Profile by User ID
+   */
+  async updateByUserId(userId, data) {
+    // Prevent updating restricted fields
+    const { verification_status, rejection_reason, ...updateData } = data;
+    
+    // Check if student exists
+    const student = await this.repository.findByUserId(userId);
+    if (!student) {
+        // Create if not exists (lazy creation)
+        return await this.repository.create({
+            ...updateData,
+            user_id: userId,
+            verification_status: 'unverified'
+        });
+    }
+
+    return await this.repository.update(userId, updateData);
+  }
+
+  /**
+   * Upload KTM and request verification
+   */
+  async uploadKTM(userId, ktmUrl) {
+    const student = await this.repository.findByUserId(userId);
+    if (!student) {
+        throw new AppError("Student profile not found. Please complete profile first.", 404);
+    }
+
+    return await this.repository.update(userId, {
+        ktm_image_url: ktmUrl,
+        verification_status: 'pending' // Auto-set to pending
+    });
+  }
+
+  /**
+   * Verify Student (Admin)
+   */
+  async verifyStudent(userId, action, reason) {
+    // Note: userId here is the user_id (primary key of student table)
+    const student = await this.repository.findByUserId(userId);
+    
+    if (!student) {
+        throw new AppError("Student not found", 404);
+    }
+
+    const updateData = {};
+    if (action === 'approve') {
+        updateData.verification_status = 'verified';
+        updateData.rejection_reason = null;
+        
+        // Activate user account
+        await UserRepository.update(userId, { status: 'active' });
+    } else if (action === 'reject') {
+        updateData.verification_status = 'rejected';
+        updateData.rejection_reason = reason;
+
+        // Suspend user account
+        await UserRepository.update(userId, { status: 'suspended' });
+    } else {
+        throw new AppError("Invalid action. Use 'approve' or 'reject'.", 400);
+    }
+
+    return await this.repository.update(userId, updateData);
   }
 }
 

@@ -18,9 +18,13 @@ class PaymentDistributionService {
   async checkAndUpdateCampaignStatus(campaignId, transaction = null) {
     try {
       console.log(`[DEBUG] checkAndUpdateCampaignStatus for Campaign ${campaignId}`);
-      // 1. Get all accepted students
+      // 1. Get all accepted/eligible students (accepted, completed, or already paid)
+      const eligibleStatuses = ["accepted", "completed", "paid"];
       const acceptedCount = await CampaignUsers.count({
-        where: { campaign_id: campaignId, application_status: "accepted" },
+        where: { 
+            campaign_id: campaignId, 
+            application_status: { [Op.in]: eligibleStatuses } 
+        },
         transaction,
       });
 
@@ -28,9 +32,12 @@ class PaymentDistributionService {
 
       if (acceptedCount === 0) return;
 
-      // 2. Get accepted students IDs
+      // 2. Get accepted/eligible students IDs
       const acceptedUsers = await CampaignUsers.findAll({
-        where: { campaign_id: campaignId, application_status: "accepted" },
+        where: { 
+            campaign_id: campaignId, 
+            application_status: { [Op.in]: eligibleStatuses }
+        },
         attributes: ["id"],
         transaction,
       });
@@ -231,10 +238,18 @@ class PaymentDistributionService {
       );
 
       if (campaignUser.payment_status !== undefined) {
+          // If using payment_status field
         await campaignUser.update(
           { payment_status: "paid" },
           { transaction: t }
         );
+      } else {
+         // Fallback or explicit update to application_status if payment_status doesn't exist yet
+         // The user specifically requested changing status to paid
+         await campaignUser.update(
+            { application_status: "paid" },
+            { transaction: t }
+         );
       }
 
       await t.commit();

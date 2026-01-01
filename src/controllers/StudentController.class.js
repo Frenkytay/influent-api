@@ -83,6 +83,35 @@ class StudentController extends BaseController {
     const result = await this.service.connectInstagram(userId, code);
     this.sendSuccess(res, result);
   });
+
+  /**
+   * Update Profile
+   * PUT /api/v1/students/profile
+   */
+  updateProfile = this.asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const student = await this.service.updateByUserId(userId, req.body);
+    this.sendSuccess(res, student);
+  });
+
+  /**
+   * Upload KTM
+   * POST /api/v1/students/upload-ktm
+   */
+  uploadKTM = this.asyncHandler(async (req, res) => {
+    if (!req.file) {
+      return this.sendError(res, "KTM file is required", 400);
+    }
+
+    const userId = req.user.id;
+    // Construct public URL - assuming local storage served via static middleware
+    // You might want to adjust this based on your actual file serving setup
+    // For now, consistent with UploadMiddleware relative path logic if any
+    const ktmUrl = `/${req.file.filename}`; 
+
+    const result = await this.service.uploadKTM(userId, ktmUrl);
+    this.sendSuccess(res, result);
+  });
 }
 
 export default new StudentController();

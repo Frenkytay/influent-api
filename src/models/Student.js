@@ -39,6 +39,33 @@ Student.init(
       type: DataTypes.STRING,
       unique: true,
     },
+    // New Profile Fields
+    domicile: {
+      type: DataTypes.STRING,
+    },
+    age: {
+      type: DataTypes.INTEGER,
+    },
+    gender: {
+      type: DataTypes.ENUM("Perempuan", "Laki-laki"),
+    },
+    instagram_profile_link: {
+      type: DataTypes.STRING,
+    },
+    content_category: {
+      type: DataTypes.STRING,
+    },
+    // Verification Fields
+    ktm_image_url: {
+      type: DataTypes.STRING,
+    },
+    verification_status: {
+      type: DataTypes.ENUM("unverified", "pending", "verified", "rejected"),
+      defaultValue: "unverified",
+    },
+    rejection_reason: {
+      type: DataTypes.STRING,
+    },
     facebook_access_token: {
       type: DataTypes.TEXT,
     },

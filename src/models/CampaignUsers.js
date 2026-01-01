@@ -35,7 +35,7 @@ CampaignUsers.init(
       field: "applied_at",
     },
     application_status: {
-      type: DataTypes.ENUM("pending", "accepted", "rejected", "completed"),
+      type: DataTypes.ENUM("pending", "accepted", "rejected", "completed", "paid"),
       defaultValue: "pending",
       field: "application_status",
     },

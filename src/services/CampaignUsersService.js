@@ -28,7 +28,14 @@ class CampaignUsersService extends BaseService {
     }
     const order = this.repository.buildOrderClause(options.sort, options.order);
 
-    return await this.repository.findAllWithRelations({ where, order });
+    const repoOptions = { where, order };
+    
+    // If user is company, preload student data
+    if (requestUser && (requestUser.role === "company" || requestUser.role === "business")) {
+        repoOptions.includeStudent = true;
+    }
+
+    return await this.repository.findAllWithRelations(repoOptions);
   }
 
   async getById(id) {

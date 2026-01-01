@@ -1,5 +1,6 @@
 import BaseRepository from "../core/BaseRepository.js";
 import User from "../models/User.js";
+import Student from "../models/Student.js";
 
 /**
  * UserRepository - Handles all database operations for User model
@@ -7,6 +8,38 @@ import User from "../models/User.js";
 class UserRepository extends BaseRepository {
   constructor() {
     super(User);
+  }
+
+  async getAll(queryFilters = {}, options = {}) {
+    // Check if we should include student data
+    const include = [];
+    if (options.includeStudent) {
+        include.push({ model: Student });
+    }
+
+    return await this.findAll({
+      where: queryFilters,
+      include,
+      ...options,
+    });
+  }
+
+  /**
+   * Find user by ID
+   */
+  async findById(id, options = {}) {
+    // Check if we should include student data
+    const include = [];
+    if (options.includeStudent) {
+        include.push({ model: Student });
+    }
+
+    // Pass include array to Sequelize findByPk
+    // Note: findByPk supports include directly
+    return await this.model.findByPk(id, {
+        include: include.length ? include : undefined,
+        ...options
+    });
   }
 
   /**
@@ -30,8 +63,15 @@ class UserRepository extends BaseRepository {
    * Find user by role
    */
   async findByRole(role, options = {}) {
+    const include = [];
+    // If searching for students or if explicitly requested, include student profile
+    if (role === 'student' || options.includeStudent) {
+        include.push({ model: Student });
+    }
+
     return await this.findAll({
       where: { role },
+      include,
       ...options,
     });
   }

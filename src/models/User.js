@@ -56,6 +56,10 @@ User.init(
       allowNull: false,
       unique: true,
     },
+    phone_number: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+    },
     password: {
       type: DataTypes.STRING,
       allowNull: false,

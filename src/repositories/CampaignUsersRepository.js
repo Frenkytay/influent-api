@@ -2,6 +2,7 @@ import BaseRepository from "../core/BaseRepository.js";
 import CampaignUsers from "../models/CampaignUsers.js";
 import User from "../models/User.js";
 import Campaign from "../models/Campaign.js";
+import Student from "../models/Student.js";
 
 class CampaignUsersRepository extends BaseRepository {
   constructor() {
@@ -9,16 +10,22 @@ class CampaignUsersRepository extends BaseRepository {
   }
 
   async findAllWithRelations(options = {}) {
+    const includes = [
+      {
+        model: User,
+        as: "user",
+        attributes: ["user_id", "name", "email", "profile_image", "role","phone_number"],
+      },
+      { model: Campaign, as: "campaign" },
+    ];
+
+    if (options.includeStudent) {
+      includes.push({ model: Student });
+    }
+
     return await this.findAll({
       ...options,
-      include: [
-        {
-          model: User,
-          as: "user",
-          attributes: ["user_id", "name", "email", "profile_image", "role"],
-        },
-        { model: Campaign, as: "campaign" },
-      ],
+      include: includes,
     });
   }
 

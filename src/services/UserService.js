@@ -22,18 +22,29 @@ class UserService extends BaseService {
     if (role) queryFilters.role = role;
     if (status) queryFilters.status = status;
 
-    return await super.getAll(queryFilters, options);
+    const repoOptions = { ...options };
+    
+    // Always include student data for admin listings or when specifically filtering for students
+    if (role === 'student' || !role) { 
+        repoOptions.includeStudent = true;
+    }
+
+    return await this.repository.getAll(queryFilters, repoOptions);
   }
 
   /**
    * Get user by email
    */
-  async getByEmail(email) {
-    const user = await this.repository.findByEmail(email);
-    if (!user) {
-      throw new Error("User not found");
+  async getById(id) {
+    // Check if user exists first to get the role (or just try to fetch with student always?)
+    // A more efficient way: just try to include Student. If no relation, it returns null for student.
+    // However, findById in BaseService does not accept options. We should override it here.
+    
+    const record = await this.repository.findById(id, { includeStudent: true });
+    if (!record) {
+      throw new Error("User not found"); // Changed message to match expected
     }
-    return user;
+    return record;
   }
 
   /**

@@ -43,7 +43,7 @@ class AuthService {
    * Register a new user
    */
   async register(userData) {
-    const { name, email, password, role } = userData;
+    const { name, email, password, role, phoneNumber } = userData;
 
     // Validate required fields
     if (!name || !email || !password || !role) {
@@ -84,6 +84,7 @@ class AuthService {
       otp_code: otp,
       otp_expires_at: otpExpires,
       otp_attempts: 0,
+      phone_number: phoneNumber,
     });
 
     // Send OTP email
@@ -137,7 +138,7 @@ class AuthService {
 
     // Update user status and clear OTP
     await this.userRepository.update(user.user_id, {
-      status: "active",
+      status: "inactive",
       email_verified: true,
       otp_code: null,
       otp_expires_at: null,

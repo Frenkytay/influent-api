@@ -19,8 +19,10 @@ import campaignPaymentRoutesClass from "./campaignPaymentRoutes.class.js";
 import transactionRoutesClass from "./transactionRoutes.class.js";
 import workSubmissionRoutesClass from "./workSubmissionRoutes.class.js";
 import postSubmissionRoutesClass from "./postSubmissionRoutes.class.js";
+// import paymentRoutesClass from "./paymentRoutes.class.js";
 import paymentRoutesClass from "./paymentRoutes.class.js";
 import imageRoutesClass from "./ImageRoutes.class.js";
+import adminRoutesClass from "./adminRoutes.class.js";
 
 // ============================================
 // LEGACY ROUTES (Still functional)
@@ -52,6 +54,7 @@ router.use("/v1/transactions", transactionRoutesClass);
 router.use("/v1/work-submissions", workSubmissionRoutesClass);
 router.use("/v1/post-submissions", postSubmissionRoutesClass);
 router.use("/v1/payments", paymentRoutesClass);
+router.use("/v1/admin", adminRoutesClass);
 
 // Image and Upload Routes (OOP)
 router.use("/", imageRoutesClass);
