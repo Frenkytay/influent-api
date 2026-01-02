@@ -107,7 +107,7 @@ class StudentController extends BaseController {
     // Construct public URL - assuming local storage served via static middleware
     // You might want to adjust this based on your actual file serving setup
     // For now, consistent with UploadMiddleware relative path logic if any
-    const ktmUrl = `/${req.file.filename}`; 
+    const ktmUrl = req.file.path; 
 
     const result = await this.service.uploadKTM(userId, ktmUrl);
     this.sendSuccess(res, result);

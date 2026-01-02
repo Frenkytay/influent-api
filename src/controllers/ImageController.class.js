@@ -1,13 +1,6 @@
 import BaseController from "../core/BaseController.js";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
 import Campaign from "../models/Campaign.js";
 import User from "../models/User.js";
-import UploadMiddleware from "../middlewares/UploadMiddleware.class.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 /**
  * ImageController - Handles image uploads and serving
@@ -20,19 +13,12 @@ class ImageController extends BaseController {
   /**
    * Serve uploaded image
    * GET /uploads/:filename
+   * @deprecated - Cloudinary serves images directly via URL
    */
   getImage = this.asyncHandler(async (req, res) => {
-    const filename = req.params.filename;
-    // Use the same upload directory as configured in the middleware
-    const imagePath = path.join(UploadMiddleware.uploadDir, filename);
-
-    // Check if file exists
-    if (!fs.existsSync(imagePath)) {
-      return this.sendError(res, "Image not found", 404);
-    }
-
-    // Send the image file
-    res.sendFile(imagePath);
+    // This endpoint is effectively deprecated for new uploads
+    // We could redirect to Cloudinary if we stored the public_id, but we store full URLs now.
+    return this.sendError(res, "This endpoint is deprecated. Please use the direct image URL.", 410);
   });
 
   /**
@@ -49,17 +35,16 @@ class ImageController extends BaseController {
 
     const campaign = await Campaign.findByPk(campaignId);
     if (!campaign) {
-      // Clean up uploaded file if campaign not found
-      this.deleteFile(req.file.path);
       return this.sendError(res, "Campaign not found", 404);
     }
 
-    const bannerPath = `${req.file.filename}`;
-    await campaign.update({ banner_image: bannerPath });
+    // Cloudinary returns the full URL in file.path
+    const bannerUrl = req.file.path;
+    await campaign.update({ banner_image: bannerUrl });
 
     this.sendSuccess(res, {
       message: "Banner image uploaded successfully",
-      banner_image: bannerPath,
+      banner_image: bannerUrl,
     });
   });
 
@@ -76,22 +61,21 @@ class ImageController extends BaseController {
 
     const campaign = await Campaign.findByPk(campaignId);
     if (!campaign) {
-      // Clean up uploaded files if campaign not found
-      req.files.forEach(file => this.deleteFile(file.path));
       return this.sendError(res, "Campaign not found", 404);
     }
 
-    const filePaths = req.files.map((file) => `${file.filename}`);
+    // Map to Cloudinary URLs
+    const fileUrls = req.files.map((file) => file.path);
     
     // In a real app, you might want to merge with existing or replace. 
     // The legacy code replaced it.
     await campaign.update({
-      reference_images: JSON.stringify(filePaths),
+      reference_images: JSON.stringify(fileUrls),
     });
 
     this.sendSuccess(res, {
       message: "Reference images uploaded successfully",
-      reference_images: filePaths,
+      reference_images: fileUrls,
     });
   });
 
@@ -108,31 +92,19 @@ class ImageController extends BaseController {
 
     const user = await User.findByPk(userId);
     if (!user) {
-        this.deleteFile(req.file.path);
         return this.sendError(res, "User not found", 404);
     }
 
-    const profilePath = `${req.file.filename}`;
-    await user.update({ profile_image: profilePath });
+    const profileUrl = req.file.path;
+    await user.update({ profile_image: profileUrl });
 
     this.sendSuccess(res, {
       message: "Profile image uploaded successfully",
-      profile_image: profilePath,
+      profile_image: profileUrl,
     });
   });
 
-  /**
-   * Helper to delete file
-   */
-  deleteFile(filePath) {
-    try {
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-    } catch (err) {
-      console.error("Error deleting file:", err);
-    }
-  }
+  // deleteFile helper is removed as we don't manage local files anymore
 }
 
 export default new ImageController();

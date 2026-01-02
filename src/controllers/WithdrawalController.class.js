@@ -69,9 +69,7 @@ class WithdrawalController extends BaseController {
       return this.sendError(res, "Unauthorized", 401);
     }
 
-    const transferProofUrl = req.file
-      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
-      : null;
+    const transferProofUrl = req.file ? req.file.path : null;
 
     const { review_notes } = req.body;
     const withdrawal = await this.service.completeWithdrawal(
