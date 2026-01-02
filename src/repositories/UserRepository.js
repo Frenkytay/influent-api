@@ -17,10 +17,15 @@ class UserRepository extends BaseRepository {
         include.push({ model: Student });
     }
 
+    const { sort, order, ...restOptions } = options;
+    const where = this.buildWhereClause(queryFilters);
+    const orderClause = this.buildOrderClause(sort, order);
+
     return await this.findAll({
-      where: queryFilters,
+      where,
+      order: orderClause,
       include,
-      ...options,
+      ...restOptions,
     });
   }
 

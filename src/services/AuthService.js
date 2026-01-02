@@ -49,15 +49,7 @@ class AuthService {
     if (!name || !email || !password || !role) {
       throw new AppError("name, email, password and role are required", 400);
     }
-
-    // Validate student email domain
-    if (role === "student" && !email.toLowerCase().endsWith(".ac.id")) {
-      throw new AppError(
-        "Student accounts must use an academic email ending with .ac.id",
-        400
-      );
-    }
-
+    
     // Check if user already exists
     const existing = await this.userRepository.findByEmail(email);
     if (existing) {
