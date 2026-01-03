@@ -30,6 +30,7 @@ router.post("/:submission_id/approve", WorkSubmissionController.approveSubmissio
 router.post("/:submission_id/reject", WorkSubmissionController.rejectSubmission);
 router.post("/:submission_id/request-revisions", WorkSubmissionController.requestRevisions);
 router.post("/:submission_id/resubmit", WorkSubmissionController.resubmit);
+router.post("/:submission_id/reject-rejection", WorkSubmissionController.rejectRejection);
 
 // Delete submission
 router.delete("/:submission_id", WorkSubmissionController.deleteSubmission);

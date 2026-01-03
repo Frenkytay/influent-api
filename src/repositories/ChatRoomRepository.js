@@ -89,10 +89,36 @@ class ChatRoomRepository extends BaseRepository {
         },
       });
 
+      // Find all participants for this room to get the "other" user(s)
+      const participants = await ChatRoomParticipant.findAll({
+        where: { chat_room_id: room.id },
+        include: [{
+            model: User,
+            attributes: ['user_id', 'name', 'profile_image', 'role']
+        }]
+      });
+
+      const otherParticipants = participants
+        .filter(p => p.user_id != userId)
+        .map(p => {
+            const u = p.User.toJSON();
+            // Map profile_image to profile_picture for frontend consistency if needed, 
+            // or just keep it as profile_image. Let's keep both for safety or just original.
+            // User request asked for profile picture capability. 
+            // To be safe and consistent with general "profile picture" term:
+            return {
+                ...u,
+                id: u.user_id, // alias id to user_id for easier frontend consumption
+                profile_picture: u.profile_image // alias for frontend
+            };
+        });
+
       rooms.push({
         room,
         lastMessage: last || null,
         unreadCount: unread,
+        otherParticipants, 
+        otherUser: otherParticipants.length > 0 ? otherParticipants[0] : null
       });
     }
 

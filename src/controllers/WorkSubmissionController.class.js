@@ -177,6 +177,31 @@ class WorkSubmissionController extends BaseController {
     await this.service.deleteSubmission(submission_id);
     this.sendSuccess(res, null);
   });
+
+  /**
+   * Reject the rejection (Admin Only)
+   */
+  rejectRejection = this.asyncHandler(async (req, res) => {
+    const { submission_id } = req.params;
+    const { reason } = req.body;
+    const adminId = req.user?.id;
+
+    if (req.user.role !== "admin") {
+      return this.sendError(res, "Access denied", 403);
+    }
+
+    const submission = await this.service.rejectRejection(
+      submission_id,
+      adminId,
+      reason
+    );
+
+    if (!submission) {
+        return this.sendError(res, "Submission not found", 404);
+    }
+
+    this.sendSuccess(res, submission);
+  });
 }
 
 export default new WorkSubmissionController();

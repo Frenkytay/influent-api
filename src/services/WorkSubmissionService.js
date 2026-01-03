@@ -239,6 +239,44 @@ class WorkSubmissionService extends BaseService {
   async deleteSubmission(id) {
     return await this.repository.delete(id);
   }
+
+  /**
+   * Reject the rejection (Admin)
+   * Reverts status to pending
+   */
+  async rejectRejection(id, adminId, reason) {
+    const submission = await this.repository.findById(id);
+    if (!submission) {
+      throw new Error("Submission not found");
+    }
+
+    if (submission.status !== "rejected") {
+      throw new Error("Can only reject submissions with 'rejected' status");
+    }
+
+    // Notify company that rejection was overruled (optional, but good practice)
+    // We need to find the company user.
+    // Submission -> CampaignUser -> Campaign -> User (Company)
+    const fullSubmission = await this.getSubmissionWithRelations(id);
+    const campaignUser = fullSubmission.CampaignUser;
+    
+    if (campaignUser && campaignUser.campaign && campaignUser.campaign.user_id) {
+       await NotificationService.createNotification({
+        user_id: campaignUser.campaign.user_id,
+        type: "work_submission",
+        title: "Penolakan Dibatalkan Admin",
+        message: `Penolakan Anda untuk pengajuan pada kampanye "${campaignUser.campaign.title}" telah dibatalkan oleh Admin.${reason ? ` Alasan: ${reason}` : ''} Silakan tinjau kembali.`,
+       });
+    }
+
+    return await this.repository.update(id, {
+      status: "pending", // Revert to pending
+      reviewed_by: null, // Clear reviewer
+      review_feedback: null, // Clear feedback
+      reviewed_at: null,
+      admin_feedback: reason // Store why admin rejected the rejection if we want
+    });
+  }
 }
 
 export default new WorkSubmissionService();
