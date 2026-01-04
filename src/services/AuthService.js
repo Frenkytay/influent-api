@@ -326,6 +326,7 @@ class AuthService {
       email: user.email,
       role: user.role,
       status: user.status,
+      phone_number: user.phone_number,
       profile_image: user.profile_image,
       student: studentData,
     };
