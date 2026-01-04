@@ -72,7 +72,7 @@ class AuthService {
       email,
       password: hashedPassword,
       role,
-      status: role === "student" ? "inactive" : "active",
+      status: "inactive",
       otp_code: otp,
       otp_expires_at: otpExpires,
       otp_attempts: 0,
@@ -130,7 +130,7 @@ class AuthService {
 
     // Update user status and clear OTP
     await this.userRepository.update(user.user_id, {
-      status: "inactive",
+      status:user.role === "student" ? "inactive" : "active",
       email_verified: true,
       otp_code: null,
       otp_expires_at: null,
