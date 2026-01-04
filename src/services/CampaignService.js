@@ -25,6 +25,14 @@ class CampaignService extends BaseService {
     // If requester is not admin
     if (requestUser && requestUser.role !== "admin") {
       if (requestUser.role === "student") {
+        // Check if student is active
+        const studentUser = await UserRepository.findById(requestUser.id);
+        if (!studentUser || studentUser.status !== 'active') {
+          const error = new Error("Account is restricted. Please complete your profile verification.");
+          error.statusCode = 403;
+          throw error;
+        }
+
         // Students see ALL active campaigns, sorted by newest
         where.status = "active";
         
