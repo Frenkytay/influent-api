@@ -72,7 +72,7 @@ class AuthService {
       email,
       password: hashedPassword,
       role,
-      status: "inactive",
+      status: role === "student" ? "inactive" : "active",
       otp_code: otp,
       otp_expires_at: otpExpires,
       otp_attempts: 0,
