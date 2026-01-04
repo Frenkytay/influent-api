@@ -108,7 +108,7 @@ class AuthService {
       throw new AppError("User not found", 404);
     }
 
-    if (user.status === "active") {
+    if (user.email_verified === true) {
       throw new AppError("User already verified", 400);
     }
 
