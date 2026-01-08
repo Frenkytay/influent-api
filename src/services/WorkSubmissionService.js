@@ -191,7 +191,7 @@ class WorkSubmissionService extends BaseService {
 
     return await this.repository.updateStatus(id, "rejected", {
       reviewed_by: reviewedBy,
-      review_feedback: feedback,
+      review_notes: feedback,
       reviewed_at: new Date(),
     });
   }
