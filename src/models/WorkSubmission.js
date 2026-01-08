@@ -86,6 +86,10 @@ WorkSubmission.init(
       type: DataTypes.TEXT,
       comment: "Feedback from reviewer",
     },
+    admin_review_notes: {
+      type: DataTypes.TEXT,
+      comment: "Notes/reason from admin (e.g., when rejecting a rejection)",
+    },
     approved_at: {
       type: DataTypes.DATE,
       comment: "When the submission was accepted",

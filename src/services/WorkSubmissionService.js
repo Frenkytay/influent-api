@@ -206,7 +206,7 @@ class WorkSubmissionService extends BaseService {
 
     return await this.repository.updateStatus(id, "revision_requested", {
       reviewed_by: reviewedBy,
-      review_feedback: feedback,
+      review_notes: feedback,
       reviewed_at: new Date(),
     });
   }
@@ -272,9 +272,9 @@ class WorkSubmissionService extends BaseService {
     return await this.repository.update(id, {
       status: "pending", // Revert to pending
       reviewed_by: null, // Clear reviewer
-      review_feedback: null, // Clear feedback
+      review_notes: null, // Clear feedback
       reviewed_at: null,
-      admin_feedback: reason // Store why admin rejected the rejection if we want
+      admin_review_notes: reason // Store why admin rejected the rejection
     });
   }
 }
