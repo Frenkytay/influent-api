@@ -36,9 +36,9 @@ class PaymentService extends BaseService {
 
     // Determine amount
     let amount = 0;
-    if (campaign.campaign_price) {
+    if (campaign.campaign_price !== undefined && campaign.campaign_price !== null) {
       amount = Number(campaign.campaign_price);
-    } else if (campaign.price_per_post && campaign.influencer_count) {
+    } else if (campaign.price_per_post !== undefined && campaign.price_per_post !== null && campaign.influencer_count) {
       amount = Number(campaign.price_per_post) * Number(campaign.influencer_count);
     } else {
       throw new Error("No price configured for this campaign");
