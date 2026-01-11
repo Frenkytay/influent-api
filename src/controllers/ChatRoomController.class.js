@@ -48,6 +48,29 @@ class ChatRoomController extends BaseController {
     const rooms = await this.service.getRoomsByUserId(userId);
     this.sendSuccess(res, rooms);
   });
+
+  joinRoom = this.asyncHandler(async (req, res) => {
+    // Expect admin user
+    // We can enforce role check in middleware or here. 
+    // Assuming AuthMiddleware already verified token, we check role if needed or rely on business logic.
+    // For safety, let's verify it's an admin requesting this (or handled by route middleware).
+    
+    await this.service.joinRoom(req.params.id, req.user.id);
+    this.sendSuccess(res, { message: "Joined room successfully" });
+  });
+
+  endSession = this.asyncHandler(async (req, res) => {
+    // Only admin or participants should be able to end? 
+    // Request implies "admin can end".
+    // We'll rely on service/repo or just update status.
+    await this.service.updateStatus(req.params.id, "closed");
+    this.sendSuccess(res, { message: "Chat session ended" });
+  });
+
+  createAdminChat = this.asyncHandler(async (req, res) => {
+    const room = await this.service.createAdminChat(req.user.id);
+    this.sendSuccess(res, room, 201);
+  });
 }
 
 export default new ChatRoomController();

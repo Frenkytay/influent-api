@@ -49,6 +49,10 @@ class ChatRoomRepository extends BaseRepository {
         participants[1]
       );
       if (existing) {
+        // If room is closed, re-open it
+        if (existing.status === "closed") {
+          await existing.update({ status: "active" });
+        }
         return existing;
       }
     }
@@ -99,7 +103,7 @@ class ChatRoomRepository extends BaseRepository {
       });
 
       const otherParticipants = participants
-        .filter(p => p.user_id != userId)
+        .filter(p => String(p.user_id) !== String(userId))
         .map(p => {
             const u = p.User.toJSON();
             // Map profile_image to profile_picture for frontend consistency if needed, 
@@ -123,6 +127,31 @@ class ChatRoomRepository extends BaseRepository {
     }
 
     return rooms;
+  }
+
+  async addParticipant(roomId, userId) {
+    const existing = await ChatRoomParticipant.findOne({
+      where: {
+        chat_room_id: roomId,
+        user_id: userId,
+      },
+    });
+
+    if (existing) {
+      return existing;
+    }
+
+    return await ChatRoomParticipant.create({
+      chat_room_id: roomId,
+      user_id: userId,
+    });
+  }
+
+  async findFirstAdmin() {
+    return await User.findOne({
+      where: { role: "admin" },
+      attributes: ["user_id"],
+    });
   }
 }
 

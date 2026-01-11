@@ -1,9 +1,21 @@
 import BaseService from "../core/BaseService.js";
 import ChatMessageRepository from "../repositories/ChatMessageRepository.js";
+import ChatRoomRepository from "../repositories/ChatRoomRepository.js";
 
 class ChatMessageService extends BaseService {
   constructor() {
     super(ChatMessageRepository);
+  }
+
+  async create(data) {
+    const room = await ChatRoomRepository.findById(data.chat_room_id);
+    if (!room) {
+      throw new Error("Chat room not found");
+    }
+    if (room.status === "closed") {
+      throw new Error("Chat session is closed");
+    }
+    return await this.repository.create(data);
   }
 
   async getAll(filters = {}, options = {}) {

@@ -32,7 +32,7 @@ ChatRoom.init(
       defaultValue: DataTypes.NOW,
     },
     status: {
-      type: DataTypes.ENUM("active", "archived"),
+      type: DataTypes.ENUM("active", "archived", "closed"),
       defaultValue: "active",
     },
   },
