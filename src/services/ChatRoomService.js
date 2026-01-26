@@ -45,7 +45,7 @@ class ChatRoomService extends BaseService {
     // 2. Create room with participants [userId, admin.user_id]
     // Use createWithParticipants which handles existing private room check
     const room = await this.createWithParticipants(
-      { name: "Support Chat" }, // Default name, or could be null for 1-1
+      { name: "Pusat Bantuan" }, // Default name, or could be null for 1-1
       [userId, admin.user_id]
     );
 
