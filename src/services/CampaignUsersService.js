@@ -70,7 +70,7 @@ class CampaignUsersService extends BaseService {
       });
 
       if (acceptedCount >= campaign.influencer_count) {
-        throw new Error("Cannot approve: Campaign has reached its influencer limit.");
+        throw new Error("Tidak dapat menerima: Kampanye telah mencapai batas influencer.");
       }
     }
 
